@@ -33,11 +33,12 @@ local function refuel()
 end
 
 
--- Pääsilmukka: kaiva tunneli eteenpäin 5 blokkia (2 korkuinen)
--- sitten käänny suuntaan jossa on blokkeja. Jatka siitä
+-- Pääsilmukka: kaiva tunneli eteenpäin 3 blokkia (2 korkuinen)
+-- sitten tee molempiin suuntiin yläreunassa 3 blokkia syvät kaivuut
+-- joista näkee
 while true do
     refuel()
-    for i = 1, 5 do
+    for i = 1, 3 do
         -- Kaiva edessä
         turtle.dig()
         -- Mene eteenpäin
@@ -45,21 +46,32 @@ while true do
         -- Kaiva yläpuolella
         turtle.digUp()
     end
-    
-    -- Etsi suunta jossa on blokkeja
+
+    turtle.up()
+    -- kaiva oikea yläkaivuu
     turtle.turnRight()
-    local foundBlock = false
-    for i = 1, 4 do
-        local success, data = turtle.inspect()
-        if success then
-        print("Löydettiin blokki edessä: " .. (data.name or "tuntematon"))
-        foundBlock = true
-        break
-        end
-        turtle.turnRight()
-    end
-    
-    if not foundBlock then
-        print("Ei löydetty blokkeja ympäriltä, jatketaan.")
-    end
+    turtle.dig()
+    safeForward()
+    turtle.dig()
+    safeForward()
+    turtle.dig()
+    safeForward()
+    turtle.back()
+    turtle.back()
+    turtle.back()
+    turtle.turnLeft()
+    -- kaiva vasen yläkaivuu
+    turtle.turnLeft()
+    turtle.dig()
+    safeForward()
+    turtle.dig()
+    safeForward()
+    turtle.dig()
+    safeForward()
+    turtle.back()
+    turtle.back()
+    turtle.back()
+    turtle.turnRight()
+
+    turtle.down()
 end
