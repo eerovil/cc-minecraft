@@ -1,0 +1,1 @@
+ln -s /Users/eerovilpponen/Documents/cc-minecraft/woodcutter.lua "/Users/eerovilpponen/Library/Application Support/minecraft/instances/d6e9919ea9e6401cbee95a1df78fb8a7/saves/Robots/computercraft/computer/0/woodcutter.lua"
