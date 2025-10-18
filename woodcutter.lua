@@ -90,7 +90,6 @@ end
 
 local function refuel()
   -- tankkaa puulla
-  local goodFuel = {"minecraft:coal", "minecraft:charcoal", "minecraft:log", "minecraft:stripped_log"}
     -- jos polttoainetta on alle 500, yritä tankata
     if turtle.getFuelLevel() < 500 then
         print("Polttoainetta vähän, yritetään tankata...")
@@ -99,7 +98,8 @@ local function refuel()
             local itemCount = turtle.getItemCount(slot)
             if itemCount > 0 then
                 local itemDetail = turtle.getItemDetail(slot)
-                if itemDetail.name == goodFuel[1] or itemDetail.name == goodFuel[2] or itemDetail.name == goodFuel[3] or itemDetail.name == goodFuel[4] then
+                -- jos nimessä on teksti "log", tankkaa sellaista
+                if string.find(itemDetail.name, "log") then
                     turtle.refuel()
                     print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
                     if turtle.getFuelLevel() >= 1000 then
