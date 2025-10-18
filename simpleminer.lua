@@ -21,6 +21,7 @@ while true do
     end
     
     -- Etsi suunta jossa on blokkeja
+    turtle.turnRight()
     local foundBlock = false
     for i = 1, 4 do
         local success, data = turtle.inspect()
