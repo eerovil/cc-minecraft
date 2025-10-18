@@ -88,9 +88,35 @@ local function istutaTaimi()
   print("Ei tainta inventaariossa!")
 end
 
+local function refuel()
+  -- tankkaa puulla
+  local goodFuel = {"minecraft:coal", "minecraft:charcoal", "minecraft:log", "minecraft:stripped_log"}
+    -- jos polttoainetta on alle 500, yritä tankata
+    if turtle.getFuelLevel() < 500 then
+        print("Polttoainetta vähän, yritetään tankata...")
+        for slot = 1, 16 do
+            turtle.select(slot)
+            local itemCount = turtle.getItemCount(slot)
+            if itemCount > 0 then
+                local itemDetail = turtle.getItemDetail(slot)
+                if itemDetail.name == goodFuel[1] or itemDetail.name == goodFuel[2] or itemDetail.name == goodFuel[3] or itemDetail.name == goodFuel[4] then
+                    turtle.refuel()
+                    print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
+                    if turtle.getFuelLevel() >= 1000 then
+                        print("Polttoaine riittää nyt.")
+                        return
+                    end
+                end
+            end
+        end
+        print("Ei löytynyt polttoainetta tankattavaksi.")
+    end
+end
+
 
 -- Pääsilmukka
 while true do
+  refuel()
 	sleep(2)
   local ahead = inspectAhead()
   if ahead and string.find(ahead, "log") then
