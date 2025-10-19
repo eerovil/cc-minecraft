@@ -124,7 +124,6 @@ end
 while true do
   suckUpAllAround()
   refuel()
-	sleep(2)
   local ahead = inspectAhead()
   if ahead and string.find(ahead, "log") then
     print("Edessä puu, hakataan se.")
@@ -139,6 +138,6 @@ while true do
 		print("Ei saplingia alapuolella, käännytään.")
 		turnAround()
     safeForward()
-		sleep(0.5)
+		sleep(60)
 	end
 end
