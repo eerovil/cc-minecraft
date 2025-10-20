@@ -154,6 +154,7 @@ while true do
         turtle.turnRight()
         safeForward()
         turtle.turnRight()
+        safeForward()
         viimeisinKasvi = nil
     end
 end
