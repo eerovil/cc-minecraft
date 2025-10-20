@@ -16,7 +16,7 @@ local function emptyInventory()
     print("Tyhjennetään reppu...")
     for slot = 1, 16 do
         turtle.select(slot)
-        turtle.dropDown()
+        turtle.drop()
     end
     print("Reppu tyhjennetty.")
 end
@@ -30,6 +30,17 @@ local function inspectDown()
 	end
 	print("Ei blokkia alapuolella.")
 	return nil
+end
+
+-- Tarkista edessä oleva blokki
+local function inspectAhead()
+  local success, data = turtle.inspect()
+  if success then
+    print("Edessä: " .. (data.name or "tuntematon"))
+    return data
+  end
+  print("Ei blokkia edessä.")
+  return nil
 end
 
 
@@ -79,28 +90,42 @@ local MAX_AGE = {
   ["minecraft:beetroots"] = 3
 }
 
-local function farmaa()
-    refuel()
+local function kasviAlapuolella()
     local blockBelow = inspectDown()
-    -- onko alapuolella oleva vehnää, punajuurta, porkkanaa tai perunoita
-    -- jos alapuolella on arkku, laita reppu tyhjäksi
-    local blockName = blockBelow and blockBelow.name or ""
-    if blockBelow and blockBelow.name == "minecraft:chest" then
-        emptyInventory()
+    if blockBelow == nil then
+        return nil
     end
+    local blockName = blockBelow.name
     if blockName == "minecraft:wheat" or
-       blockName == "minecraft:beetroot" or
+       blockName == "minecraft:beetroots" or
        blockName == "minecraft:carrots" or
        blockName == "minecraft:potatoes" then
+        return blockBelow
+    end
+    return "tuntematon"
+end
+
+
+local function farmaa()
+    refuel()
+    local blockBelow = kasviAlapuolella()
+    local blockAhead = inspectAhead()
+    -- onko alapuolella oleva vehnää, punajuurta, porkkanaa tai perunoita
+    -- jos alapuolella on arkku, laita reppu tyhjäksi
+    if blockAhead and blockAhead.name == "minecraft:chest" then
+        emptyInventory()
+        return false, false
+    end
+    if blockBelow and blockBelow.name ~= "tuntematon" then
         -- tarkista kasvu taso
         local age = (blockBelow.state and blockBelow.state.age) or 0
-        if age == MAX_AGE[blockName] then
+        if age == MAX_AGE[blockBelow.name] then
             print("Kasvi on valmis, korjataan...")
             turtle.digDown()
-            return true, blockName
+            return true, blockBelow.name
         end
         -- jatka farmausta
-        return true, blockName
+        return true, blockBelow.name
     else
         -- jos alapuolella on tyhjä, jatka farmausta
         if blockBelow == nil then
@@ -178,5 +203,29 @@ while true do
             edellinenSuunta = "vasen"
         end
         viimeisinKasvi = nil
+        local blockBelow = kasviAlapuolella()
+        -- jos alapuolella on tuntematon, meidän pitää kääntyä takaisin
+        if blockBelow == "tuntematon" then
+            print("Alapuolella ei ole farmauskasvia, käännytään uudestaan.")
+            if edellinenSuunta == "vasen" then
+                turtle.turnRight()
+                turtle.turnRight()
+                safeForward()
+                turtle.turnRight()
+                safeForward()
+                turtle.turnRight()
+                safeForward()
+                edellinenSuunta = "oikea"
+            else
+                turtle.turnLeft()
+                turtle.turnLeft()
+                safeForward()
+                turtle.turnLeft()
+                safeForward()
+                turtle.turnLeft()
+                safeForward()
+                edellinenSuunta = "vasen"
+            end
+        end
     end
 end
