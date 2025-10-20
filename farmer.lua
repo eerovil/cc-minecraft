@@ -102,7 +102,7 @@ local function kasviAlapuolella()
        blockName == "minecraft:potatoes" then
         return blockBelow
     end
-    return "tuntematon"
+    return "reuna"
 end
 
 
@@ -114,9 +114,10 @@ local function farmaa()
     -- jos alapuolella on arkku, laita reppu tyhjäksi
     if blockAhead and blockAhead.name == "minecraft:chest" then
         emptyInventory()
+        -- false niin kääntyy
         return false, false
     end
-    if blockBelow and blockBelow.name ~= "tuntematon" then
+    if blockBelow and blockBelow ~= "reuna" then
         -- tarkista kasvu taso
         local age = (blockBelow.state and blockBelow.state.age) or 0
         if age == MAX_AGE[blockBelow.name] then
