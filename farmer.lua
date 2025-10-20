@@ -139,7 +139,7 @@ end
 local viimeisinKasvi = nil
 while true do
     local farmausOnnistui, farmattuKasvi = farmaa()
-    if farmattuKasvi and farmattuKasvi != "tuntematon" then
+    if farmattuKasvi and farmattuKasvi ~= "tuntematon" then
         viimeisinKasvi = farmattuKasvi
     end
     if farmausOnnistui then
