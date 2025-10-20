@@ -148,6 +148,10 @@ local function etsiRepusta(nimi)
 end
 
 local function istutaSiemen(nimi)
+    if not nimi then
+        print("Ei tiedetä mitä istuttaa.")
+        return false
+    end
     local siemenet = {
         ["minecraft:wheat"]     = "minecraft:wheat_seeds",
         ["minecraft:beetroots"] = "minecraft:beetroot_seeds",
@@ -206,7 +210,7 @@ while true do
         viimeisinKasvi = nil
         local blockBelow = kasviAlapuolella()
         -- jos alapuolella on tuntematon, meidän pitää kääntyä takaisin
-        if blockBelow == "tuntematon" then
+        if blockBelow == "reuna" then
             print("Alapuolella ei ole farmauskasvia, käännytään uudestaan.")
             if edellinenSuunta == "vasen" then
                 turtle.turnRight()
