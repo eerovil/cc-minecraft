@@ -144,10 +144,6 @@ while true do
     end
     if farmausOnnistui then
         istutusOnnistui = istutaSiemen(viimeisinKasvi)
-        if not istutusOnnistui then
-            print("Lopetetaan, koska ei voida istuttaa.")
-            break
-        end
         safeForward()
     else
         -- käänny, liiku eteenpäin ja käänny
