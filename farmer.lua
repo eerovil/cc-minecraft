@@ -62,6 +62,12 @@ local function refuel()
     end
 end
 
+local MAX_AGE = {
+  ["minecraft:wheat"] = 7,
+  ["minecraft:carrots"] = 7,
+  ["minecraft:potatoes"] = 7,
+  ["minecraft:beetroots"] = 3
+}
 
 local function farmaa()
     refuel()
@@ -72,8 +78,8 @@ local function farmaa()
        blockBelow.name == "minecraft:carrots" or
        blockBelow.name == "minecraft:potatoes" then
         -- tarkista kasvu taso
-        local nbt = blockBelow.state
-        if nbt.age and nbt.age == 7 then
+        local age = (blockBelow.state and blockBelow.state.age) or 0
+        if age == MAX_AGE[blockBelow.name] then
             print("Kasvi on valmis, korjataan...")
             turtle.digDown()
             return true, blockBelow.name
@@ -102,13 +108,12 @@ end
 
 local function istutaSiemen(nimi)
     local siemenet = {
-        "minecraft:wheat" = "minecraft:wheat_seeds",
-        "minecraft:beetroot" = "minecraft:beetroot_seeds",
-        "minecraft:carrot" = "minecraft:carrot",
-        "minecraft:potatoe" = "minecraft:potato"
+        ["minecraft:wheat"]     = "minecraft:wheat_seeds",
+        ["minecraft:beetroots"] = "minecraft:beetroot_seeds",
+        ["minecraft:carrots"]   = "minecraft:carrot",
+        ["minecraft:potatoes"]  = "minecraft:potato",
     }
-
-    local siemenNimi = siemenet.minecraft[nimi]
+    local siemenNimi = siemenet[nimi]
     if siemenNimi then
         -- etsi siemen inventaariosta
         local slot = etsiRepusta(siemenNimi)
@@ -135,7 +140,7 @@ local viimeisinKasvi = nil
 while true do
     local farmausOnnistui, farmattuKasvi = farmaa()
     if farmattuKasvi and farmattuKasvi != "tuntematon" then
-        viimeisinKasvi = farmausOnnistui
+        viimeisinKasvi = farmattuKasvi
     end
     if farmausOnnistui then
         istutusOnnistui = istutaSiemen(viimeisinKasvi)
