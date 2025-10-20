@@ -85,11 +85,11 @@ local function farmaa()
             return true, blockBelow.name
         end
         -- jatka farmausta
-        return false, blockBelow.name
+        return true, blockBelow.name
     else
         -- jos alapuolella on tyhjä, jatka farmausta
         if blockBelow == nil then
-            return false, "tuntematon"
+            return true, "tuntematon"
         end
     end
     print("Alapuolella ei ole farmauskasvia.")
