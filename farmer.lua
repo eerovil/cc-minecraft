@@ -11,6 +11,16 @@ local function safeForward()
 	print("Liikuttiin eteenpäin.")
 end
 
+-- tyhjennä reppu alapuolella olevaan säiliöön
+local function emptyInventory()
+    print("Tyhjennetään reppu...")
+    for slot = 1, 16 do
+        turtle.select(slot)
+        turtle.dropDown()
+    end
+    print("Reppu tyhjennetty.")
+end
+
 -- Tarkista alapuolinen blokki
 local function inspectDown()
 	local success, data = turtle.inspectDown()
@@ -73,19 +83,24 @@ local function farmaa()
     refuel()
     local blockBelow = inspectDown()
     -- onko alapuolella oleva vehnää, punajuurta, porkkanaa tai perunoita
-    if blockBelow.name == "minecraft:wheat" or
-       blockBelow.name == "minecraft:beetroot" or
-       blockBelow.name == "minecraft:carrots" or
-       blockBelow.name == "minecraft:potatoes" then
+    -- jos alapuolella on arkku, laita reppu tyhjäksi
+    local blockName = blockBelow and blockBelow.name or ""
+    if blockBelow and blockBelow.name == "minecraft:chest" then
+        emptyInventory()
+    end
+    if blockName == "minecraft:wheat" or
+       blockName == "minecraft:beetroot" or
+       blockName == "minecraft:carrots" or
+       blockName == "minecraft:potatoes" then
         -- tarkista kasvu taso
         local age = (blockBelow.state and blockBelow.state.age) or 0
-        if age == MAX_AGE[blockBelow.name] then
+        if age == MAX_AGE[blockName] then
             print("Kasvi on valmis, korjataan...")
             turtle.digDown()
-            return true, blockBelow.name
+            return true, blockName
         end
         -- jatka farmausta
-        return true, blockBelow.name
+        return true, blockName
     else
         -- jos alapuolella on tyhjä, jatka farmausta
         if blockBelow == nil then
@@ -137,6 +152,7 @@ end
 -- Pääsilmukka
 --liiku eteenpäin ja suorita farmaus
 local viimeisinKasvi = nil
+local edellinenSuunta = "vasen"
 while true do
     local farmausOnnistui, farmattuKasvi = farmaa()
     if farmattuKasvi and farmattuKasvi ~= "tuntematon" then
@@ -146,11 +162,21 @@ while true do
         istutusOnnistui = istutaSiemen(viimeisinKasvi)
         safeForward()
     else
-        -- käänny, liiku eteenpäin ja käänny
-        turtle.turnRight()
-        safeForward()
-        turtle.turnRight()
-        safeForward()
+        if edellinenSuunta == "vasen" then
+            -- käänny, liiku eteenpäin ja käänny
+            turtle.turnRight()
+            safeForward()
+            turtle.turnRight()
+            safeForward()
+            edellinenSuunta = "oikea"
+        else
+            -- käänny, liiku eteenpäin ja käänny
+            turtle.turnLeft()
+            safeForward()
+            turtle.turnLeft()
+            safeForward()
+            edellinenSuunta = "vasen"
+        end
         viimeisinKasvi = nil
     end
 end
