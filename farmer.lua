@@ -90,7 +90,7 @@ local function farmaa()
     return false, false
 end
 
-local etsiRepusta(nimi)
+local function etsiRepusta(nimi)
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
         if item and item.name == nimi then
