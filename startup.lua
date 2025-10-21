@@ -4,17 +4,7 @@
 local function ensureLabel()
   local label = os.getComputerLabel()
   if not label or label == "" then
-    print("Anna turtlen nimi (esim. farmer_1):")
-    io.write("> ")
-    local name = read()
-    if name and name ~= "" then
-      os.setComputerLabel(name)
-      print("Nimi asetettu: " .. name)
-      return name
-    else
-      print("Ei nimeä annettu, käytetään tilapäistä nimeä.")
-      return "unnamed"
-    end
+    shell.run("rename")
   end
   print("Turtlen nimi on: " .. label)
   return label

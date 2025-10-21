@@ -8,20 +8,24 @@ local BRANCH     = "main"                  -- esim. "main" tai "master"
 local FILES = {                            -- src_path_in_repo -> dest_path_on_turtle
   ["lib/utils.lua"]   = "lib/utils.lua",
   ["startup.lua"]     = "startup.lua",
+  ["rename.lua"]      = "rename.lua",
+  ["update.lua"]      = "update.lua",
 }
 local STATE_FILE = ".last_sha"             -- minne viimeisin SHA tallennetaan
 local UA = "CC-Tweaked-Updater"            -- GitHub API vaatii User-Agentin
 -- ===== END CONFIG =====
 
 local label = os.getComputerLabel()
-local role = label:match("^([^_]+)")
-if not role or role == "" then
-  print("Ei voitu päätellä roolia nimestä.")
-  return
-end
+if label then
+  local role = label:match("^([^_]+)")
+  if not role or role == "" then
+    print("Ei voitu päätellä roolia nimestä.")
+    return
+  end
 
--- lisää role.lua päivitettäviin tiedostoihin
-FILES[role .. ".lua"] = role .. ".lua"
+  -- lisää role.lua päivitettäviin tiedostoihin
+  FILES[role .. ".lua"] = role .. ".lua"
+end
 
 local function get(url, headers)
   local ok, res = pcall(function() return http.get(url, headers) end)
