@@ -1,5 +1,6 @@
 
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
+local utils = dofile("lib/utils.lua")
 
 -- Turvallinen eteenpäinliike
 local function safeForward()

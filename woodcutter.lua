@@ -1,37 +1,6 @@
 
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
-
--- Turvallinen eteenpäinliike
-local function safeForward()
-	while not turtle.forward() do
-		print("Edessä este, yritetään kaivaa...")
-		turtle.dig()
-		sleep(0.2)
-	end
-	print("Liikuttiin eteenpäin.")
-end
-
--- Tarkista alapuolinen blokki
-local function inspectDown()
-	local success, data = turtle.inspectDown()
-	if success then
-		print("Alapuolella: " .. (data.name or "tuntematon"))
-		return data.name
-	end
-	print("Ei blokkia alapuolella.")
-	return nil
-end
-
--- Tarkista edessä oleva blokki
-local function inspectAhead()
-  local success, data = turtle.inspect()
-  if success then
-    print("Edessä: " .. (data.name or "tuntematon"))
-    return data.name
-  end
-  print("Ei blokkia edessä.")
-  return nil
-end
+local utils = dofile("lib/utils.lua")
 
 -- Käänny 180 astetta
 local function turnAround()
