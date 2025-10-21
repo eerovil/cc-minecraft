@@ -75,7 +75,7 @@ while true do
   -- jos yllä on puu, hakkaa sekin
   local above = utils.inspectUp()
 	local below = utils.inspectDown()
-  if (above and string.find(above, "log")) or (below and string.find(below, "log")) then
+  if (above and string.find(above.name, "log")) or (below and string.find(below.name, "log")) then
     print("Yllä/Alla puu, hakataan se.")
     hakkaaPuu(true)
     istutaTaimi()
@@ -83,7 +83,7 @@ while true do
   end
 
 	below = utils.inspectDown()
-	if below and string.find(below, "sapling") then
+	if below and string.find(below.name, "sapling") then
     print("Alapuolella taimi, mennään eteenpäin.")
 	else
 		print("Ei saplingia alapuolella, käännytään.")

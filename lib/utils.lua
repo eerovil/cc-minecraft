@@ -37,7 +37,7 @@ function M.inspectUp()
 	local success, data = turtle.inspectUp()
 	if success then
 		print("Yllä: " .. (data.name))
-		return data.name
+		return data
 	end
 	print("Ei blokkia yllä.")
 	return nil
@@ -48,7 +48,7 @@ function M.inspectDown()
 	local success, data = turtle.inspectDown()
 	if success then
 		print("Alapuolella: " .. (data.name))
-		return data.name
+		return data
 	end
 	print("Ei blokkia alapuolella.")
 	return nil
