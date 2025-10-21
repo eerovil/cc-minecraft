@@ -82,6 +82,7 @@ while true do
     sleep(0.5)
   end
 
+	below = utils.inspectDown()
 	if below and string.find(below, "sapling") then
     print("Alapuolella taimi, mennään eteenpäin.")
 	else
