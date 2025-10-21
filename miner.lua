@@ -37,7 +37,7 @@ kaivaSuoni = function(direction)
         turtle.up()
     elseif direction == "forward" then
         turtle.dig()
-        safeForward()
+        utils.safeForward()
         inspectSurroundings()
         turtle.back()
     end
