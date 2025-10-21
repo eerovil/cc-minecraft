@@ -138,42 +138,36 @@ while true do
         utils.safeForward()
     else
         if edellinenSuunta == "vasen" then
-            -- käänny, liiku eteenpäin ja käänny
+            -- Olemme reunan päällä, pitää kääntyä oikealle.
+            -- mene taaksepäin, käänny oikealle, mene eteenpäin, käänny oikealle
+            turtle.back()
             turtle.turnRight()
             utils.safeForward()
             turtle.turnRight()
-            utils.safeForward()
             edellinenSuunta = "oikea"
         else
-            -- käänny, liiku eteenpäin ja käänny
+            -- Olemme reunan päällä, pitää kääntyä vasemmalle.
+            -- mene taaksepäin, käänny vasemmalle, mene eteenpäin, käänny vasemmalle
+            turtle.back()
             turtle.turnLeft()
             utils.safeForward()
             turtle.turnLeft()
-            utils.safeForward()
             edellinenSuunta = "vasen"
         end
         viimeisinKasvi = nil
         local blockBelow = kasviAlapuolella()
-        -- jos alapuolella on tuntematon, meidän pitää kääntyä takaisin
+        -- jos alapuolella on reuna vieläkin, meidän pitää mennä takaisin
         if blockBelow == "reuna" then
             print("Alapuolella ei ole farmauskasvia, käännytään uudestaan.")
             if edellinenSuunta == "vasen" then
-                turtle.turnRight()
-                turtle.turnRight()
+                turtle.turnLeft()
                 utils.safeForward()
                 turtle.turnRight()
-                utils.safeForward()
-                turtle.turnRight()
-                utils.safeForward()
                 edellinenSuunta = "oikea"
             else
-                turtle.turnLeft()
-                turtle.turnLeft()
+                turtle.turnRight()
                 utils.safeForward()
                 turtle.turnLeft()
-                utils.safeForward()
-                turtle.turnLeft()
-                utils.safeForward()
                 edellinenSuunta = "vasen"
             end
         end
