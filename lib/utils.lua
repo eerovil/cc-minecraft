@@ -59,7 +59,7 @@ function M.inspectAhead()
   local success, data = turtle.inspect()
   if success then
     print("Edessä: " .. (data.name))
-    return data.name
+    return data
   end
   print("Ei blokkia edessä.")
   return nil
