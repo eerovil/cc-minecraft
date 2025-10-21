@@ -2,16 +2,6 @@
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
 
--- Turvallinen eteenpäinliike
-local function safeForward()
-	while not turtle.forward() do
-		print("Edessä este, yritetään kaivaa...")
-		turtle.dig()
-		sleep(0.2)
-	end
-	print("Liikuttiin eteenpäin.")
-end
-
 -- tyhjennä reppu alapuolella olevaan säiliöön
 local function emptyInventory()
     print("Tyhjennetään reppu...")
@@ -21,29 +11,6 @@ local function emptyInventory()
     end
     print("Reppu tyhjennetty.")
 end
-
--- Tarkista alapuolinen blokki
-local function inspectDown()
-	local success, data = turtle.inspectDown()
-	if success then
-		print("Alapuolella: " .. (data.name or "tuntematon"))
-		return data
-	end
-	print("Ei blokkia alapuolella.")
-	return nil
-end
-
--- Tarkista edessä oleva blokki
-local function inspectAhead()
-  local success, data = turtle.inspect()
-  if success then
-    print("Edessä: " .. (data.name or "tuntematon"))
-    return data
-  end
-  print("Ei blokkia edessä.")
-  return nil
-end
-
 
 -- istuta taimi alapuolelle
 local function istutaTaimi()
@@ -60,30 +27,6 @@ local function istutaTaimi()
   print("Ei tainta inventaariossa!")
 end
 
-local function refuel()
-    local goodFuel = {"minecraft:coal", "minecraft:charcoal"}
-    -- jos polttoainetta on alle 500, yritä tankata
-    if turtle.getFuelLevel() < 500 then
-        print("Polttoainetta vähän, yritetään tankata...")
-        for slot = 1, 16 do
-            turtle.select(slot)
-            local itemCount = turtle.getItemCount(slot)
-            if itemCount > 0 then
-                local itemDetail = turtle.getItemDetail(slot)
-                if itemDetail.name == goodFuel[1] or itemDetail.name == goodFuel[2] then
-                    turtle.refuel()
-                    print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
-                    if turtle.getFuelLevel() >= 1000 then
-                        print("Polttoaine riittää nyt.")
-                        return
-                    end
-                end
-            end
-        end
-        print("Ei löytynyt polttoainetta tankattavaksi.")
-    end
-end
-
 local MAX_AGE = {
   ["minecraft:wheat"] = 7,
   ["minecraft:carrots"] = 7,
@@ -92,7 +35,7 @@ local MAX_AGE = {
 }
 
 local function kasviAlapuolella()
-    local blockBelow = inspectDown()
+    local blockBelow = utils.inspectDown()
     if blockBelow == nil then
         return nil
     end
@@ -110,7 +53,7 @@ end
 local function farmaa()
     refuel()
     local blockBelow = kasviAlapuolella()
-    local blockAhead = inspectAhead()
+    local blockAhead = utils.inspectAhead()
     -- onko alapuolella oleva vehnää, punajuurta, porkkanaa tai perunoita
     -- jos alapuolella on arkku, laita reppu tyhjäksi
     if blockAhead and blockAhead.name == "minecraft:chest" then
@@ -185,27 +128,28 @@ end
 local viimeisinKasvi = nil
 local edellinenSuunta = "vasen"
 while true do
+    utils.refuel()
     local farmausOnnistui, farmattuKasvi = farmaa()
     if farmattuKasvi and farmattuKasvi ~= "tuntematon" then
         viimeisinKasvi = farmattuKasvi
     end
     if farmausOnnistui then
         istutusOnnistui = istutaSiemen(viimeisinKasvi)
-        safeForward()
+        utils.safeForward()
     else
         if edellinenSuunta == "vasen" then
             -- käänny, liiku eteenpäin ja käänny
             turtle.turnRight()
-            safeForward()
+            utils.safeForward()
             turtle.turnRight()
-            safeForward()
+            utils.safeForward()
             edellinenSuunta = "oikea"
         else
             -- käänny, liiku eteenpäin ja käänny
             turtle.turnLeft()
-            safeForward()
+            utils.safeForward()
             turtle.turnLeft()
-            safeForward()
+            utils.safeForward()
             edellinenSuunta = "vasen"
         end
         viimeisinKasvi = nil
@@ -216,20 +160,20 @@ while true do
             if edellinenSuunta == "vasen" then
                 turtle.turnRight()
                 turtle.turnRight()
-                safeForward()
+                utils.safeForward()
                 turtle.turnRight()
-                safeForward()
+                utils.safeForward()
                 turtle.turnRight()
-                safeForward()
+                utils.safeForward()
                 edellinenSuunta = "oikea"
             else
                 turtle.turnLeft()
                 turtle.turnLeft()
-                safeForward()
+                utils.safeForward()
                 turtle.turnLeft()
-                safeForward()
+                utils.safeForward()
                 turtle.turnLeft()
-                safeForward()
+                utils.safeForward()
                 edellinenSuunta = "vasen"
             end
         end

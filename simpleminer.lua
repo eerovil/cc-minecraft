@@ -10,7 +10,7 @@ while true do
         -- Kaiva edessä
         turtle.dig()
         -- Mene eteenpäin
-        safeForward()
+        utils.safeForward()
         -- Kaiva yläpuolella
         turtle.digUp()
     end
@@ -19,11 +19,11 @@ while true do
     -- kaiva oikea yläkaivuu
     turtle.turnRight()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.back()
     turtle.back()
     turtle.back()
@@ -31,11 +31,11 @@ while true do
     -- kaiva vasen yläkaivuu
     turtle.turnLeft()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.dig()
-    safeForward()
+    utils.safeForward()
     turtle.back()
     turtle.back()
     turtle.back()

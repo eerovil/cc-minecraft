@@ -2,13 +2,6 @@
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
 
--- Käänny 180 astetta
-local function turnAround()
-	turtle.turnRight()
-	turtle.turnRight()
-	print("Käännyttiin 180 astetta.")
-end
-
 
 -- Hakkaa puu
 -- Ensin hakkaa edessä oleva,
@@ -19,7 +12,7 @@ end
 local function hakkaaPuu()
   -- Hakkaa edessä oleva puu
   turtle.dig()
-  safeForward()
+  utils.safeForward()
   -- Hakkaa alapuolella oleva puu
   turtle.digDown()
   local upCount = 0
@@ -57,30 +50,6 @@ local function istutaTaimi()
   print("Ei tainta inventaariossa!")
 end
 
-local function refuel()
-    local goodFuel = {"minecraft:coal", "minecraft:charcoal"}
-    -- jos polttoainetta on alle 500, yritä tankata
-    if turtle.getFuelLevel() < 500 then
-        print("Polttoainetta vähän, yritetään tankata...")
-        for slot = 1, 16 do
-            turtle.select(slot)
-            local itemCount = turtle.getItemCount(slot)
-            if itemCount > 0 then
-                local itemDetail = turtle.getItemDetail(slot)
-                if itemDetail.name == goodFuel[1] or itemDetail.name == goodFuel[2] then
-                    turtle.refuel()
-                    print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
-                    if turtle.getFuelLevel() >= 1000 then
-                        print("Polttoaine riittää nyt.")
-                        return
-                    end
-                end
-            end
-        end
-        print("Ei löytynyt polttoainetta tankattavaksi.")
-    end
-end
-
 local suckUpAllAround = function()
   for i = 1, 4 do
     turtle.suck()
@@ -92,21 +61,21 @@ end
 -- Pääsilmukka
 while true do
   suckUpAllAround()
-  refuel()
-  local ahead = inspectAhead()
+  utils.refuel()
+  local ahead = utils.inspectAhead()
   if ahead and string.find(ahead, "log") then
     print("Edessä puu, hakataan se.")
     hakkaaPuu()
     istutaTaimi()
     sleep(0.5)
   end
-	local below = inspectDown()
+	local below = utils.inspectDown()
 	if below and string.find(below, "sapling") then
-		safeForward()
+		utils.safeForward()
 	else
 		print("Ei saplingia alapuolella, käännytään.")
-		turnAround()
-    safeForward()
+		utils.turnAround()
+    utils.safeForward()
 		sleep(60)
 	end
 end

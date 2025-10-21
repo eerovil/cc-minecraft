@@ -89,28 +89,28 @@ local function drawSilmukka()
     -- sitten mene silmukanleveys eteenpäin
     for i = 1, silmukanleveys do
         kaiva()
-        safeForward()
+        utils.safeForward()
     end
     -- käänny oikealle
     turtle.turnRight()
     -- mene silmukanpituus eteenpäin
     for i = 1, silmukanpituus do
         kaiva()
-        safeForward()
+        utils.safeForward()
     end
     -- käänny oikealle
     turtle.turnRight()
     -- mene silmukanleveys taaksepäin
     for i = 1, silmukanleveys do
         kaiva()
-        safeForward()
+        utils.safeForward()
     end
     -- käänny oikealle
     turtle.turnRight()
     -- mene silmukanpituus taaksepäin
     for i = 1, silmukanpituus do
         kaiva()
-        safeForward()
+        utils.safeForward()
     end
     -- käänny alkuperäiseen suuntaan
     turtle.turnLeft()
@@ -121,7 +121,7 @@ end
 --aluksi kaiva 3 eteenpäin
 for i = 1, 3 do
     kaiva()
-    safeForward()
+    utils.safeForward()
 end
 
 drawSilmukka()
@@ -133,7 +133,7 @@ if extrasilmukat > 0 then
         turtle.turnRight()
         for j = 1, silmukanleveys * 2 do
             kaiva()
-            safeForward()
+            utils.safeForward()
         end
         turtle.turnLeft()
         -- piirrä silmukka
@@ -143,7 +143,7 @@ if extrasilmukat > 0 then
     -- liiku takaisin keskelle
     for j = 1, silmukanleveys * extrasilmukat * 2 do
         kaiva(true)
-        safeForward()
+        utils.safeForward()
     end
     turtle.turnRight()
 end
@@ -156,7 +156,7 @@ turtle.turnRight()
 
 for i = 1, 3 do
     kaiva(true)
-    safeForward()
+    utils.safeForward()
 end
 
 
