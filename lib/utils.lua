@@ -62,4 +62,34 @@ function M.turnAround()
 	print("Käännyttiin 180 astetta.")
 end
 
+local filename = "turtle_state.txt"
+
+-- lataa tai tallenna state
+function M.loadState()
+    local file = fs.open(filename, "r")
+    if file then
+        local content = file.readAll()
+        file.close()
+        local state = textutils.unserialize(content)
+        print("Ladattu tila tiedostosta " .. filename)
+        return state
+    else
+        print("Ei löydetty tallennettua tilaa tiedostosta " .. filename)
+        return nil
+    end
+end
+
+-- tallenna tila tiedostoon
+function M.saveState(state)
+    local file = fs.open(filename, "w")
+    if file then
+        local content = textutils.serialize(state)
+        file.write(content)
+        file.close()
+        print("Tallennettu tila tiedostoon " .. filename)
+    else
+        print("Ei voitu tallentaa tilaa tiedostoon " .. filename)
+    end
+end
+
 return M

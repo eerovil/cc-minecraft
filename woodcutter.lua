@@ -9,10 +9,12 @@ local utils = dofile("lib/utils.lua")
 -- sitten alapuolella oleva
 -- sitten toista: Hakkaa yläpuolella oleva ja mene ylös
 -- kunnes ei ole enää puuta Sitten liiku alas (muista kuinka monta askelta ylös mentiin)
-local function hakkaaPuu()
-  -- Hakkaa edessä oleva puu
-  turtle.dig()
-  utils.safeForward()
+local function hakkaaPuu(kohdalla)
+  if not kohdalla then
+    -- Hakkaa edessä oleva puu
+    turtle.dig()
+    utils.safeForward()
+  end
   -- Hakkaa alapuolella oleva puu
   turtle.digDown()
   local upCount = 0
@@ -69,7 +71,16 @@ while true do
     istutaTaimi()
     sleep(0.5)
   end
+  -- jos yllä on puu, hakkaa sekin
+  local above = utils.inspectUp()
 	local below = utils.inspectDown()
+  if (above and string.find(above, "log")) or (below and string.find(below, "log")) then
+    print("Yllä/Alla puu, hakataan se.")
+    hakkaaPuu(true)
+    istutaTaimi()
+    sleep(0.5)
+  end
+
 	if below and string.find(below, "sapling") then
 		utils.safeForward()
 	else

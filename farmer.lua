@@ -127,6 +127,17 @@ end
 --liiku eteenpäin ja suorita farmaus
 local viimeisinKasvi = nil
 local edellinenSuunta = "vasen"
+local state = M.loadState() or {}
+if state.edellinenSuunta then
+    edellinenSuunta = state.edellinenSuunta
+end
+
+local asetaEdellinenSuunta = function(suunta)
+    edellinenSuunta = suunta
+    state.edellinenSuunta = suunta
+    M.saveState(state)
+end
+
 while true do
     utils.refuel()
     local farmausOnnistui, farmattuKasvi = farmaa()
@@ -144,7 +155,7 @@ while true do
             turtle.turnRight()
             utils.safeForward()
             turtle.turnRight()
-            edellinenSuunta = "oikea"
+            asetaEdellinenSuunta("oikea")
         else
             -- Olemme reunan päällä, pitää kääntyä vasemmalle.
             -- mene taaksepäin, käänny vasemmalle, mene eteenpäin, käänny vasemmalle
@@ -152,7 +163,7 @@ while true do
             turtle.turnLeft()
             utils.safeForward()
             turtle.turnLeft()
-            edellinenSuunta = "vasen"
+            asetaEdellinenSuunta("vasen")
         end
         viimeisinKasvi = nil
         local blockBelow = kasviAlapuolella()
@@ -163,12 +174,12 @@ while true do
                 turtle.turnLeft()
                 utils.safeForward()
                 turtle.turnRight()
-                edellinenSuunta = "oikea"
+                asetaEdellinenSuunta("oikea")
             else
                 turtle.turnRight()
                 utils.safeForward()
                 turtle.turnLeft()
-                edellinenSuunta = "vasen"
+                asetaEdellinenSuunta("vasen")
             end
         end
     end
