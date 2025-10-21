@@ -8,7 +8,7 @@ local BRANCH     = "main"                  -- esim. "main" tai "master"
 local FILES = {                            -- src_path_in_repo -> dest_path_on_turtle
   ["lib/utils.lua"]   = "lib/utils.lua",
   ["startup.lua"]     = "startup.lua",
-  ["rename.lua"]      = "rename.lua",
+  ["newname.lua"]      = "newname.lua",
   ["update.lua"]      = "update.lua",
 }
 local STATE_FILE = ".last_sha"             -- minne viimeisin SHA tallennetaan

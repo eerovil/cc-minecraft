@@ -4,7 +4,7 @@
 local function ensureLabel()
   local label = os.getComputerLabel()
   if not label or label == "" then
-    shell.run("rename")
+    shell.run("newname")
   end
   print("Turtlen nimi on: " .. label)
   return label
