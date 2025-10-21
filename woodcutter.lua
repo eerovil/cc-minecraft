@@ -62,6 +62,7 @@ end
 
 -- Pääsilmukka
 while true do
+  utils.safeForward()
   suckUpAllAround()
   utils.refuel()
   local ahead = utils.inspectAhead()
@@ -82,11 +83,10 @@ while true do
   end
 
 	if below and string.find(below, "sapling") then
-		utils.safeForward()
+    print("Alapuolella taimi, mennään eteenpäin.")
 	else
 		print("Ei saplingia alapuolella, käännytään.")
 		utils.turnAround()
-    utils.safeForward()
 		sleep(60)
 	end
 end
