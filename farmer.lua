@@ -127,7 +127,7 @@ end
 --liiku eteenpäin ja suorita farmaus
 local viimeisinKasvi = nil
 local edellinenSuunta = "vasen"
-local state = M.loadState() or {}
+local state = utils.loadState() or {}
 if state.edellinenSuunta then
     edellinenSuunta = state.edellinenSuunta
 end
@@ -135,7 +135,7 @@ end
 local asetaEdellinenSuunta = function(suunta)
     edellinenSuunta = suunta
     state.edellinenSuunta = suunta
-    M.saveState(state)
+    utils.saveState(state)
 end
 
 while true do
