@@ -8,10 +8,10 @@ local BRANCH     = "main"                  -- esim. "main" tai "master"
 local FILES = {                            -- src_path_in_repo -> dest_path_on_turtle
   ["lib/utils.lua"]   = "lib/utils.lua",
   ["startup.lua"]     = "startup.lua",
-  ["newname.lua"]      = "newname.lua",
+  ["newname.lua"]     = "newname.lua",
   ["update.lua"]      = "update.lua",
 }
-local STATE_FILE = ".last_sha"             -- minne viimeisin SHA tallennetaan
+
 local UA = "CC-Tweaked-Updater"            -- GitHub API vaatii User-Agentin
 -- ===== END CONFIG =====
 
@@ -77,11 +77,6 @@ local function main()
     print("Error:", err)
     return
   end
-  local prev = load(STATE_FILE)
-  if prev == sha then
-    print("Already up-to-date at", sha:sub(1,7))
-    return
-  end
 
   print("New commit:", sha)
   for src, dst in pairs(FILES) do
@@ -95,7 +90,6 @@ local function main()
     print("ok  ->  "..dst)
   end
 
-  save(STATE_FILE, sha)
   print("Updated to", sha:sub(1,7))
 end
 
