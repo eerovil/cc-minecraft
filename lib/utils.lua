@@ -1,5 +1,6 @@
+local M = {}
 
-local function refuel()
+function M.refuel()
     local goodFuel = {"minecraft:coal", "minecraft:charcoal"}
     -- jos polttoainetta on alle 500, yritä tankata
     if turtle.getFuelLevel() < 500 then
@@ -24,8 +25,7 @@ local function refuel()
 end
 
 
-local function safeForward()
-    refuel()
+function M.safeForward()
     while not turtle.forward() do
         turtle.dig()
         sleep(0.2)
@@ -34,7 +34,7 @@ end
 
 
 -- Tarkista alapuolinen blokki
-local function inspectDown()
+function M.inspectDown()
 	local success, data = turtle.inspectDown()
 	if success then
 		print("Alapuolella: " .. (data.name))
@@ -45,7 +45,7 @@ local function inspectDown()
 end
 
 -- Tarkista edessä oleva blokki
-local function inspectAhead()
+function M.inspectAhead()
   local success, data = turtle.inspect()
   if success then
     print("Edessä: " .. (data.name))
@@ -54,3 +54,5 @@ local function inspectAhead()
   print("Ei blokkia edessä.")
   return nil
 end
+
+return M
