@@ -51,7 +51,7 @@ end
 
 
 local function farmaa()
-    refuel()
+    utils.refuel()
     local blockBelow = kasviAlapuolella()
     local blockAhead = utils.inspectAhead()
     -- onko alapuolella oleva vehnää, punajuurta, porkkanaa tai perunoita
