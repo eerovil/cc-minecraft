@@ -32,6 +32,16 @@ function M.safeForward()
     end
 end
 
+-- Tarkista yläpuolinen blokki
+function M.inspectUp()
+	local success, data = turtle.inspectUp()
+	if success then
+		print("Yllä: " .. (data.name))
+		return data.name
+	end
+	print("Ei blokkia yllä.")
+	return nil
+end
 
 -- Tarkista alapuolinen blokki
 function M.inspectDown()
