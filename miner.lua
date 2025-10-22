@@ -1,5 +1,7 @@
 -- Kaivaa kahden blokin korkuista tunnelia eteenpäin
 local utils = dofile("lib/utils.lua")
+local Actions = dofile("lib/actions.lua")
+tracker = Actions.new("miner")
 
 -- funktio: kerro onko blokki mielenkiintoinen
 local function isInterestingBlock(blockName)
@@ -26,140 +28,100 @@ local inspectSurroundings, kaivaSuoni
 
 kaivaSuoni = function(direction)
     if direction == "up" then
-        turtle.digUp()
-        turtle.up()
+        tracker:digUp()
+        tracker:up()
         inspectSurroundings()
-        turtle.down()
+        tracker:down()
     elseif direction == "down" then
-        turtle.digDown()
-        turtle.down()
+        tracker:digDown()
+        tracker:down()
         inspectSurroundings()
-        turtle.up()
+        tracker:up()
     elseif direction == "forward" then
-        turtle.dig()
-        utils.safeForward()
+        tracker:dig()
+        tracker:safeForward()
         inspectSurroundings()
-        turtle.back()
+        tracker:back()
     end
 end
 
 inspectSurroundings = function()
     -- ensin katso ylös
-    local successUp, dataUp = turtle.inspectUp()
+    local successUp, dataUp = tracker:inspectUp()
     if successUp and isInterestingBlock(dataUp.name) then
         print("Yläpuolella: " .. (dataUp.name or "tuntematon"))
         kaivaSuoni("up")
     end
     -- sitten katso alas
-    local successDown, dataDown = turtle.inspectDown()
+    local successDown, dataDown = tracker:inspectDown()
     if successDown and isInterestingBlock(dataDown.name) then
         print("Alapuolella: " .. (dataDown.name or "tuntematon"))
         kaivaSuoni("down")
     end
-    -- sitten katso eteen ja pyörähdä 3 kertaa
-    for i = 1, 4 do
-        local successAhead, dataAhead = turtle.inspect()
-        if successAhead and isInterestingBlock(dataAhead.name) then
-            print("Edessä: " .. (dataAhead.name or "tuntematon"))
-            kaivaSuoni("forward")
-        end
-        turtle.turnRight()
+    -- sitten katso eteen
+    local successAhead, dataDown = tracker:inspect()
+    if successAhead and isInterestingBlock(dataDown.name) then
+        print("Alapuolella: " .. (dataDown.name or "tuntematon"))
+        kaivaSuoni("down")
     end
     print("Ei mielenkiintoista ympärillä.")
     return nil
 end
 
 local kaiva = function(eitsekkaa)
+    utils.refuel()
     -- ennen kaivamista, tarkista ympäristö
     if not eitsekkaa then
         inspectSurroundings()
     end
-    turtle.dig()
+    tracker:dig()
+    tracker:digUp()
 end
 
--- Pääsilmukka: jatka tunnelin kaivamista
--- aluksi mene 3 blokkia eteenpäin kaivaten
-local extrasilmukat = 5
-local silmukanleveys = 3
-local silmukanpituus = 20
-
-local function drawSilmukka()
-    -- ensin käänny vasemmalle
-    turtle.turnLeft()
-    -- sitten mene silmukanleveys eteenpäin
-    for i = 1, silmukanleveys do
-        kaiva()
-        utils.safeForward()
+local laitaSoihtu = function() 
+    local soihtuSlot = utils.etsiRepusta("minecraft:torch")
+    if soihtuSlot then
+        turtle.select(soihtuSlot)
+        turtle.placeDown()
+        print("Soihtu asetettu alas.")
+    else
+        print("Ei soihtua repussa!")
+        --- lopeta ohjelma
+        error("Ei soihtua repussa!") 
     end
-    -- käänny oikealle
-    turtle.turnRight()
-    -- mene silmukanpituus eteenpäin
-    for i = 1, silmukanpituus do
-        kaiva()
-        utils.safeForward()
-    end
-    -- käänny oikealle
-    turtle.turnRight()
-    -- mene silmukanleveys taaksepäin
-    for i = 1, silmukanleveys do
-        kaiva()
-        utils.safeForward()
-    end
-    -- käänny oikealle
-    turtle.turnRight()
-    -- mene silmukanpituus taaksepäin
-    for i = 1, silmukanpituus do
-        kaiva()
-        utils.safeForward()
-    end
-    -- käänny alkuperäiseen suuntaan
-    turtle.turnLeft()
-    turtle.turnLeft()
 end
 
-
---aluksi kaiva 3 eteenpäin
-for i = 1, 3 do
-    kaiva()
-    utils.safeForward()
-end
-
-drawSilmukka()
-
--- sitten piirrä silmukoita määrän verran
-if extrasilmukat > 0 then
-    for i = 1, extrasilmukat do
-        --liiku oikealle 2 kertaa silmukan leveys ja käänny vasemmalle
-        turtle.turnRight()
-        for j = 1, silmukanleveys * 2 do
-            kaiva()
-            utils.safeForward()
+-- Pääsilmukka: kaiva tunnelia eteenpäin
+while true do
+    tracker:cycle(function()
+        laitaSoihtu()
+        -- kaiva 10 kertaa
+        for i = 1, 10 do
+            kaiva(false)
         end
-        turtle.turnLeft()
-        -- piirrä silmukka
-        drawSilmukka()
-    end
-    turtle.turnLeft()
-    -- liiku takaisin keskelle
-    for j = 1, silmukanleveys * extrasilmukat * 2 do
-        kaiva(true)
-        utils.safeForward()
-    end
-    turtle.turnRight()
+        laitaSoihtu()
+        -- käänny oikealle
+        tracker:turnRight()
+        -- kaiva 4 kertaa
+        for i = 1, 4 do
+            kaiva(false)
+        end
+        laitaSoihtu()
+        -- käänny oikealle
+        tracker:turnRight()
+        -- kaiva 10 kertaa
+        for i = 1, 10 do
+            kaiva(false)
+        end
+        laitaSoihtu()
+        -- käänny vasemmalle
+        tracker:turnLeft()
+        -- kaiva 4 kertaa
+        for i = 1, 4 do
+            kaiva(false)
+        end
+        -- käänny vasemmalle
+        tracker:turnLeft()
+        -- valmis!
+    end)
 end
-
-print("Kaivettu kaikki silmukat.")
--- palaa alkuun
-
-turtle.turnRight()
-turtle.turnRight()
-
-for i = 1, 3 do
-    kaiva(true)
-    utils.safeForward()
-end
-
-
-turtle.turnRight()
-turtle.turnRight()
-print("Palattu alkuun.")

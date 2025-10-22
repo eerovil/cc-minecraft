@@ -1,5 +1,15 @@
 local M = {}
 
+function M.etsiRepusta(nimi)
+    for slot = 1, 16 do
+        local itemDetail = turtle.getItemDetail(slot)
+        if itemDetail and itemDetail.name == nimi then
+            return slot
+        end
+    end
+    return nil
+end
+
 function M.refuel()
     local goodFuel = {"minecraft:coal", "minecraft:charcoal"}
     -- jos polttoainetta on alle 500, yritä tankata
