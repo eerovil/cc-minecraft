@@ -141,6 +141,14 @@ function Actions:dig()
   return self:runStep(function() turtle.dig() end,{min_fuel=0})
 end
 
+function Actions:digUp()
+  return self:runStep(function() turtle.digUp() end,{min_fuel=0})
+end
+
+function Actions:digDown()
+  return self:runStep(function() turtle.digDown() end,{min_fuel=0})
+end
+
 function Actions:place()
   return self:runStep(function() turtle.place() end,{min_fuel=0})
 end
