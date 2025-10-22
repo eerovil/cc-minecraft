@@ -36,12 +36,13 @@ local function kaivaKorkeutta(tracker)
         return
     end
     -- yli 2 on hankalampi.
-    for i = 1, korkeus - 1 do
+    for i = 1, korkeus - 2 do
         tracker:digUp()
         tracker:moveUp()
     end
-    for i = 1, korkeus - 1 do
-        tracker:down()
+    tracker:digUp()
+    for i = 1, korkeus - 2 do
+        tracker:moveDown()
     end
 end
 
