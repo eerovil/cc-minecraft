@@ -145,6 +145,20 @@ function Actions:place()
   return self:runStep(function() turtle.place() end,{min_fuel=0})
 end
 
+-- cycle helper: Using this prevents the step counter from growing indefinitely.
+-- usage
+-- while true do
+--     tracker = Actions.new("looper")
+--     tracker:cycle(function()
+--         for i = 1, 3 do
+--             turtle.dig()  -- here we can use turtle.dig() directly since block state tracking is not needed
+--             tracker:moveForward()
+--         end
+--         -- more actions...
+--     end)
+-- end
+-- after each cycle, the step counter is reset to 0.
+
 function Actions:completeCycle()
     localStep = 0
   self.state.last_step=0; self.state.pending=nil; self:save()
