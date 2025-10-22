@@ -12,6 +12,7 @@ while true do
         -- aloita "uusi" seinän poisto
         turtle.dig()
         turtle.digUp()
+        tracker:moveForward()
         turtle.turnRight()
         -- kaiva 10 eteenpäin ja ylös
         for i = 1, (PITUUS - 1) do
@@ -22,6 +23,7 @@ while true do
         -- käänny oikealle
         tracker:turnLeft()
         turtle.dig()
+        turtle.digUp()
         tracker:moveForward()
         tracker:turnLeft()
         -- kaiva 10 eteenpäin ja ylös
