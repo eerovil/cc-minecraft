@@ -85,4 +85,5 @@ while true do
     -- tallenna tila
     utils.saveState({width=leveys, height=korkeus, depth=syvyys})
     print("Jäljellä syvyyttä: " .. syvyys)
+    utils.refuel()
 end
