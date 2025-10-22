@@ -146,6 +146,7 @@ function Actions:place()
 end
 
 function Actions:completeCycle()
+    localStep = 0
   self.state.last_step=0; self.state.pending=nil; self:save()
 end
 
