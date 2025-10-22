@@ -109,6 +109,7 @@ while true do
             tracker:forward()
         end
         -- mene ylös
+        tracker:digUp()
         tracker:up()
         tracker:turnLeft()
 
