@@ -70,10 +70,10 @@ end
 
 local kaiva = function(eitsekkaa)
     utils.refuel()
-    -- ennen kaivamista, tarkista ympäristö
-    if not eitsekkaa then
-        inspectSurroundings()
-    end
+    -- -- ennen kaivamista, tarkista ympäristö
+    -- if not eitsekkaa then
+    --     inspectSurroundings()
+    -- end
     tracker:dig()
     -- jos yläpuolella on soihtu, älä kaiva sitä pois
     local successUp, dataUp = turtle.inspectUp()
@@ -99,11 +99,30 @@ local laitaSoihtuTaakse = function()
     end
 end
 
+function asetaBlokkiAlas()
+    -- jos alapuolella on tyhjä, laita jokin blokki
+    local successDown, dataDown = turtle.inspectDown()
+    if not successDown then
+        -- etsi jokin blokki, nimessä "stone" repusta
+        for slot = 1, 16 do
+            local item = turtle.getItemDetail(slot)
+            if item and string.find(item.name, "stone") then
+                turtle.select(slot)
+                turtle.placeDown()
+                print("Asetettu blokki alapuolelle.")
+                return
+            end
+        end
+        print("Ei stone-blokkia inventaariossa!")
+    end
+end
+
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 while true do
     tracker:cycle(function()
         -- kaiva 3 kertaa
         for i = 1, 3 do
+            asetaBlokkiAlas()
             kaiva(false)
             tracker:digUp()
             tracker:safeForward()
@@ -134,6 +153,7 @@ while true do
         -- mene alas
         tracker:down()
         kaiva(false)
+        asetaBlokkiAlas()
         tracker:safeForward()
         laitaSoihtuTaakse()
     end)
