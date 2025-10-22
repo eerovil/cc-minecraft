@@ -15,6 +15,8 @@ if savedState then
     korkeus = savedState.height or korkeus
     syvyys = savedState.depth or syvyys
 end
+
+print("Asetettu leveys: " .. leveys .. ", korkeus: " .. korkeus .. ", syvyys: " .. syvyys)
 -- hae 
 
 utils.saveState({width=leveys, height=korkeus, depth=syvyys})
@@ -76,4 +78,5 @@ while true do
     end
     -- tallenna tila
     utils.saveState({width=leveys, height=korkeus, depth=syvyys})
+    print("Jäljellä syvyyttä: " .. syvyys)
 end
