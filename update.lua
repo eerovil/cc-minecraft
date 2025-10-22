@@ -53,7 +53,7 @@ local function load(path)
   return s
 end
 
-local function get_latest_sha(owner, repo, branch)
+local function get_latest_json(owner, repo, branch)
   local url = ("https://api.github.com/repos/%s/%s/commits/%s"):format(owner, repo, branch)
   local body, err = get(url, {["User-Agent"]=UA})
   if not body then return nil, err end
@@ -61,8 +61,7 @@ local function get_latest_sha(owner, repo, branch)
   if not ok or not json or not json.sha then
     return nil, "Failed to parse commit JSON"
   end
-  print("Commit msg: "..tostring(json.commit and json.commit.message or ""))
-  return json.sha
+  return json
 end
 
 local function download_file_at_sha(owner, repo, sha, repo_path)
@@ -74,13 +73,13 @@ end
 
 local function main()
   print("Fetching latest SHA for "..REPO_OWNER.."/"..REPO_NAME.."@"..BRANCH.."...")
-  local sha, err = get_latest_sha(REPO_OWNER, REPO_NAME, BRANCH)
-  if not sha then
+  local json, err = get_latest_json(REPO_OWNER, REPO_NAME, BRANCH)
+  if not json then
     print("Error:", err)
     return
   end
+  local sha = json.sha
 
-  print("New commit:", sha)
   for src, dst in pairs(FILES) do
     io.write("  -> "..src.."  ")
     local body, derr = download_file_at_sha(REPO_OWNER, REPO_NAME, sha, src)
@@ -93,6 +92,7 @@ local function main()
   end
 
   print("Updated to", sha:sub(1,7))
+  print("Commit msg: "..tostring(json.commit and json.commit.message or ""))
 end
 
 local ok, e = pcall(main)
