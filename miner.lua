@@ -98,6 +98,7 @@ while true do
         -- kaiva 10 kertaa
         for i = 1, 10 do
             kaiva(false)
+            tracker:forward()
         end
         laitaSoihtu()
         -- käänny oikealle
@@ -105,6 +106,7 @@ while true do
         -- kaiva 4 kertaa
         for i = 1, 4 do
             kaiva(false)
+            tracker:forward()
         end
         laitaSoihtu()
         -- käänny oikealle
@@ -112,6 +114,7 @@ while true do
         -- kaiva 10 kertaa
         for i = 1, 10 do
             kaiva(false)
+            tracker:forward()
         end
         laitaSoihtu()
         -- käänny vasemmalle
@@ -119,6 +122,7 @@ while true do
         -- kaiva 4 kertaa
         for i = 1, 4 do
             kaiva(false)
+            tracker:forward()
         end
         -- käänny vasemmalle
         tracker:turnLeft()
