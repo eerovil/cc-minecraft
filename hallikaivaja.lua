@@ -29,30 +29,30 @@ while true do
         -- kaiva 3 eteenpäin
         for i = 1, 3 do
             turtle.dig()
-            utils.safeForward()
+            tracker:moveForward()
         end
         -- käänny oikealle
-        turtle.turnRight()
+        tracker:turnRight()
         -- kaiva 3 eteenpäin
         for i = 1, 3 do
             turtle.dig()
-            utils.safeForward()
+            tracker:moveForward()
         end
         -- käänny oikealle
-        turtle.turnRight()
+        tracker:turnRight()
         -- kaiva 3 eteenpäin
         for i = 1, 3 do
             turtle.dig()
-            utils.safeForward()
+            tracker:moveForward()
         end
         -- käänny oikealle
-        turtle.turnRight()
+        tracker:turnRight()
         -- kaiva 3 eteenpäin
         for i = 1, 3 do
             turtle.dig()
-            utils.safeForward()
+            tracker:moveForward()
         end
         -- käänny alkuperäiseen suuntaan
-        turtle.turnRight()
+        tracker:turnRight()
     end)
 end
