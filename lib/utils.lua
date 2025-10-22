@@ -35,13 +35,6 @@ function M.refuel()
 end
 
 
-function M.safeForward()
-    while not turtle.forward() do
-        turtle.dig()
-        sleep(0.2)
-    end
-end
-
 -- Tarkista yläpuolinen blokki
 function M.inspectUp()
 	local success, data = turtle.inspectUp()

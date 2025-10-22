@@ -15,7 +15,7 @@ local function hakkaaPuu(kohdalla)
   if not kohdalla then
     -- Hakkaa edessä oleva puu
     tracker:dig()
-    utils.safeForward()
+    tracker:safeForward()
   end
   -- Hakkaa alapuolella oleva puu
   tracker:digDown()
@@ -64,7 +64,7 @@ end
 
 -- Pääsilmukka
 while true do
-  utils.safeForward()
+  tracker:safeForward()
   suckUpAllAround()
   utils.refuel()
   local ahead = utils.inspectAhead()
