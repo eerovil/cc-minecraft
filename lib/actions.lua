@@ -95,7 +95,8 @@ end
 function Actions:runStep(fn,opts)
   opts=opts or {}
   local min_fuel=opts.min_fuel or 1
-  local step=localStep + 1
+  localStep = localStep + 1
+  local step=localStep
   print("[actions] step "..step..", state: "..tostring(self.state))
 
   if self.state.pending and self.state.pending.step==step then
