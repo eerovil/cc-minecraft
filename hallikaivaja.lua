@@ -13,7 +13,7 @@ while true do
         turtle.dig()
         turtle.digUp()
         tracker:moveForward()
-        turtle.turnRight()
+        tracker:turnRight()
         -- kaiva 10 eteenpäin ja ylös
         for i = 1, (PITUUS - 1) do
             turtle.dig()
