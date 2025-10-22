@@ -2,13 +2,18 @@
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 
-local savedState = utils.loadState()
 -- args on leveys ja sitten korkeus ja sitten syvyys
 local args = {...}
 local leveys = tonumber(args[1]) or 2
 local korkeus = tonumber(args[2]) or 2
 local syvyys = tonumber(args[3]) or 100
 
+if args[1] then 
+    -- force save new state
+    utils.saveState({width=leveys, height=korkeus, depth=syvyys})
+end
+
+local savedState = utils.loadState()
 if savedState then
     -- aseta leveys, korkeus, syvyys tallennetusta tilasta
     leveys = savedState.width or leveys
