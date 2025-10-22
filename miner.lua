@@ -47,19 +47,19 @@ end
 
 inspectSurroundings = function()
     -- ensin katso ylös
-    local successUp, dataUp = tracker:inspectUp()
+    local successUp, dataUp = turtle:inspectUp()
     if successUp and isInterestingBlock(dataUp.name) then
         print("Yläpuolella: " .. (dataUp.name or "tuntematon"))
         kaivaSuoni("up")
     end
     -- sitten katso alas
-    local successDown, dataDown = tracker:inspectDown()
+    local successDown, dataDown = turtle:inspectDown()
     if successDown and isInterestingBlock(dataDown.name) then
         print("Alapuolella: " .. (dataDown.name or "tuntematon"))
         kaivaSuoni("down")
     end
     -- sitten katso eteen
-    local successAhead, dataDown = tracker:inspect()
+    local successAhead, dataDown = turtle:inspect()
     if successAhead and isInterestingBlock(dataDown.name) then
         print("Alapuolella: " .. (dataDown.name or "tuntematon"))
         kaivaSuoni("down")
