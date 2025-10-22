@@ -134,8 +134,15 @@ function Actions:forward(n)
 end
 
 function Actions:safeForward(n)
-  self:dig(n)
-  return self:moveForward(n)
+  return self:runStep(function()
+    n=n or 1
+    for i=1,n do
+      while not turtle.forward() do
+        turtle.dig()
+        sleep(0.2)
+      end
+    end
+  end,{min_fuel=n})
 end
 
 

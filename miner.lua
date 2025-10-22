@@ -106,7 +106,7 @@ while true do
         for i = 1, 3 do
             kaiva(false)
             tracker:digUp()
-            tracker:forward()
+            tracker:safeForward()
         end
         -- mene ylös
         tracker:digUp()
@@ -115,26 +115,26 @@ while true do
 
         for i = 1, 5 do
             kaiva(false)
-            tracker:forward()
+            tracker:safeForward()
         end
         tracker:turnAround()
         for i = 1, 5 do
-            tracker:forward()
+            tracker:safeForward()
         end
         for i = 1, 5 do
             kaiva(false)
-            tracker:forward()
+            tracker:safeForward()
         end
         tracker:turnAround()
         for i = 1, 5 do
-            tracker:forward()
+            tracker:safeForward()
         end
         -- oikealle
         tracker:turnRight()
         -- mene alas
         tracker:down()
         kaiva(false)
-        tracker:forward()
+        tracker:safeForward()
         laitaSoihtuTaakse()
     end)
 end
