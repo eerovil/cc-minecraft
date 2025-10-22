@@ -82,7 +82,8 @@ local laitaSoihtu = function()
     local soihtuSlot = utils.etsiRepusta("minecraft:torch")
     if soihtuSlot then
         turtle.select(soihtuSlot)
-        turtle.placeDown()
+        turtle.digUp()
+        turtle.placeUp()
         print("Soihtu asetettu alas.")
     else
         print("Ei soihtua repussa!")
