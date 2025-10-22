@@ -58,6 +58,7 @@ while true do
         tracker:turnRight()
         -- kaiva 10 eteenpäin ja ylös
         for i = 1, (leveys - 1) do
+            utils.refuel()
             turtle.dig()
             tracker:moveForward()
             kaivaKorkeutta(tracker)
@@ -70,6 +71,7 @@ while true do
         tracker:turnLeft()
         -- kaiva 10 eteenpäin ja ylös
         for i = 1, (leveys - 1) do
+            utils.refuel()
             turtle.dig()
             tracker:moveForward()
             kaivaKorkeutta(tracker)
