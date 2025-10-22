@@ -169,6 +169,11 @@ function Actions:turnRight()
   return self:runStep(function() turtle.turnRight() end,{min_fuel=0})
 end
 
+function Actions:turnAround()
+  self:runStep(function() turtle.turnRight() end,{min_fuel=0})
+  return self:runStep(function() turtle.turnRight() end,{min_fuel=0})
+end
+
 function Actions:dig()
   return self:runStep(function() turtle.dig() end,{min_fuel=0})
 end

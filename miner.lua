@@ -82,16 +82,16 @@ local kaiva = function(eitsekkaa)
         print("Soihtu yläpuolella, jätetään se rauhaan.")
         return
     end
-    tracker:digUp()
 end
 
-local laitaSoihtu = function() 
+local laitaSoihtuTaakse = function()
     local soihtuSlot = utils.etsiRepusta("minecraft:torch")
     if soihtuSlot then
         turtle.select(soihtuSlot)
-        turtle.digUp()
-        turtle.placeUp()
-        print("Soihtu asetettu alas.")
+        tracker:turnAround()
+        turtle.place()
+        tracker:turnAround()
+        print("Soihtu asetettu taakse.")
     else
         print("Ei soihtua repussa!")
         --- lopeta ohjelma
@@ -102,38 +102,37 @@ end
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 while true do
     tracker:cycle(function()
-        laitaSoihtu()
-        -- kaiva 10 kertaa
-        for i = 1, 10 do
-            kaiva(false)
-            tracker:forward()
-        end
-        laitaSoihtu()
-        -- käänny oikealle
-        tracker:turnRight()
         -- kaiva 4 kertaa
         for i = 1, 4 do
             kaiva(false)
+            tracker:digUp()
             tracker:forward()
         end
-        laitaSoihtu()
-        -- käänny oikealle
+        -- mene ylös
+        tracker:up()
+        tracker:turnLeft()
+
+        for i = 1, 5 do
+            kaiva(false)
+            tracker:forward()
+        end
+        tracker:turnAround()
+        for i = 1, 5 do
+            tracker:forward()
+        end
+        for i = 1, 5 do
+            kaiva(false)
+            tracker:forward()
+        end
+        tracker:turnAround()
+        for i = 1, 5 do
+            tracker:forward()
+        end
+        -- oikealle
         tracker:turnRight()
-        -- kaiva 10 kertaa
-        for i = 1, 10 do
-            kaiva(false)
-            tracker:forward()
-        end
-        laitaSoihtu()
-        -- käänny vasemmalle
-        tracker:turnLeft()
-        -- kaiva 4 kertaa
-        for i = 1, 4 do
-            kaiva(false)
-            tracker:forward()
-        end
-        -- käänny vasemmalle
-        tracker:turnLeft()
-        -- valmis!
+        -- mene alas
+        tracker:down()
+        tracker:forward()
+        laitaSoihtuTaakse()
     end)
 end
