@@ -1,6 +1,6 @@
 -- Kaivaa kahden blokin korkuista tunnelia eteenpäin
 local utils = dofile("lib/utils.lua")
-local actions = dofile("lib/actions.lua")
+local Actions = dofile("lib/actions.lua")
 
 -- local function zigzagStep(step)
 --     -- eteenpäin
@@ -24,7 +24,8 @@ local actions = dofile("lib/actions.lua")
 
 -- Pääsilmukka: tee 3x3 neliö
 while true do
-    actions:cycle(function()
+    tracker = Actions.new("hallikaivaja")
+    tracker:cycle(function()
         -- kaiva 3 eteenpäin
         for i = 1, 3 do
             turtle.dig()
