@@ -129,6 +129,20 @@ function Actions:moveForward(n)
   end,{min_fuel=n})
 end
 
+function Actions:moveUp(n)
+  n=n or 1
+  return self:runStep(function()
+    for i=1,n do assert(turtle.up(),"blocked") end
+  end,{min_fuel=n})
+end
+
+function Actions:moveDown(n)
+  n=n or 1
+  return self:runStep(function()
+    for i=1,n do assert(turtle.down(),"blocked") end
+  end,{min_fuel=n})
+end
+
 function Actions:turnLeft()
   return self:runStep(function() turtle.turnLeft() end,{min_fuel=0})
 end

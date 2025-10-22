@@ -38,7 +38,7 @@ local function kaivaKorkeutta(tracker)
     -- yli 2 on hankalampi.
     for i = 1, korkeus - 1 do
         tracker:digUp()
-        tracker:up()
+        tracker:moveUp()
     end
     for i = 1, korkeus - 1 do
         tracker:down()
