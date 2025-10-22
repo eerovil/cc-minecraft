@@ -4,6 +4,7 @@
 -- Each call to :runStep() increments it after success, and uses fuel to detect if a step ran during a crash.
 
 local Actions = {}
+local localStep = 0
 Actions.__index = Actions
 
 local STATE_DIR = "/.state"
@@ -94,7 +95,8 @@ end
 function Actions:runStep(fn,opts)
   opts=opts or {}
   local min_fuel=opts.min_fuel or 1
-  local step=self.state.last_step+1
+  local step=localStep + 1
+  print("[actions] step "..step..", state: "..tostring(self.state))
 
   if self.state.pending and self.state.pending.step==step then
     self:reconcilePending()
