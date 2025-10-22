@@ -77,7 +77,8 @@ local kaiva = function(eitsekkaa)
     tracker:dig()
     -- jos yläpuolella on soihtu, älä kaiva sitä pois
     local successUp, dataUp = turtle.inspectUp()
-    if successUp and dataUp.name == "minecraft:torch" then
+    -- jos nimessä on teksti "torch"
+    if successUp and string.find(dataUp.name, "torch") then
         print("Soihtu yläpuolella, jätetään se rauhaan.")
         return
     end
