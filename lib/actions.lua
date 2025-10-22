@@ -130,7 +130,7 @@ function Actions:moveForward(n)
 end
 
 function Actions:forward(n)
-  return self:moveUp(n)
+  return self:moveForward(n)
 end
 
 function Actions:safeForward(n)
