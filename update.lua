@@ -61,6 +61,7 @@ local function get_latest_sha(owner, repo, branch)
   if not ok or not json or not json.sha then
     return nil, "Failed to parse commit JSON"
   end
+  print("Commit msg: "..tostring(json.commit and json.commit.message or ""))
   return json.sha
 end
 
