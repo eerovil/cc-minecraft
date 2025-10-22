@@ -64,12 +64,12 @@ end
 
 -- Pääsilmukka
 while true do
-    tracker:cycle(function()
+  tracker:cycle(function()
     tracker:safeForward()
     suckUpAllAround()
     utils.refuel()
     local ahead = utils.inspectAhead()
-    if ahead and string.find(ahead, "log") then
+    if ahead and string.find(ahead.name, "log") then
       print("Edessä puu, hakataan se.")
       hakkaaPuu()
       istutaTaimi()
