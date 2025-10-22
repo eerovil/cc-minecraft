@@ -11,10 +11,20 @@ local FILES = {                            -- src_path_in_repo -> dest_path_on_t
   ["startup.lua"]     = "startup.lua",
   ["newname.lua"]     = "newname.lua",
   ["update.lua"]      = "update.lua",
+  ["resetstate.lua"]      = "resetstate.lua",
 }
 
 local UA = "CC-Tweaked-Updater"            -- GitHub API vaatii User-Agentin
 -- ===== END CONFIG =====
+
+-- try to get input from args
+local args = {...}
+if args[1] and args[1] ~= "" then
+    local name = args[1]
+    os.setComputerLabel(name)
+    print("Nimi asetettu: " .. name)
+    return name
+end
 
 local label = os.getComputerLabel()
 if label then
