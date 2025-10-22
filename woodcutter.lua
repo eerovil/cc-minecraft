@@ -1,6 +1,8 @@
 
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
+local Actions = dofile("lib/actions.lua")
+tracker = Actions.new("miner")
 
 
 -- Hakkaa puu
@@ -12,18 +14,18 @@ local utils = dofile("lib/utils.lua")
 local function hakkaaPuu(kohdalla)
   if not kohdalla then
     -- Hakkaa edessä oleva puu
-    turtle.dig()
+    tracker:dig()
     utils.safeForward()
   end
   -- Hakkaa alapuolella oleva puu
-  turtle.digDown()
+  tracker:digDown()
   local upCount = 0
   -- Hakkaa yläpuolella oleva puu ja mene ylös
   while true do
     local success, data = turtle.inspectUp()
     if success and string.find(data.name, "log") then
-      turtle.digUp()
-      turtle.up()
+      tracker:digUp()
+      tracker:up()
       upCount = upCount + 1
       print("Mennyt ylös, taso: " .. upCount)
     else
@@ -32,7 +34,7 @@ local function hakkaaPuu(kohdalla)
   end
   -- Liiku alas
   for i = 1, upCount do
-    turtle.down()
+    tracker:down()
   end
 end
 
@@ -55,7 +57,7 @@ end
 local suckUpAllAround = function()
   for i = 1, 4 do
     turtle.suck()
-    turtle.turnRight()
+    tracker:turnRight()
   end
 end
 
