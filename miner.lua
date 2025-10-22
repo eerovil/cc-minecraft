@@ -102,8 +102,8 @@ end
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 while true do
     tracker:cycle(function()
-        -- kaiva 4 kertaa
-        for i = 1, 4 do
+        -- kaiva 3 kertaa
+        for i = 1, 3 do
             kaiva(false)
             tracker:digUp()
             tracker:forward()
