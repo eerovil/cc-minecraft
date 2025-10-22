@@ -2,7 +2,7 @@
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
-tracker = Actions.new("miner")
+tracker = Actions.new("woodcutter")
 
 
 -- Hakkaa puu
@@ -64,32 +64,34 @@ end
 
 -- Pääsilmukka
 while true do
-  tracker:safeForward()
-  suckUpAllAround()
-  utils.refuel()
-  local ahead = utils.inspectAhead()
-  if ahead and string.find(ahead, "log") then
-    print("Edessä puu, hakataan se.")
-    hakkaaPuu()
-    istutaTaimi()
-    sleep(0.5)
-  end
-  -- jos yllä on puu, hakkaa sekin
-  local above = utils.inspectUp()
-	local below = utils.inspectDown()
-  if (above and string.find(above.name, "log")) or (below and string.find(below.name, "log")) then
-    print("Yllä/Alla puu, hakataan se.")
-    hakkaaPuu(true)
-    istutaTaimi()
-    sleep(0.5)
-  end
+    tracker:cycle(function()
+    tracker:safeForward()
+    suckUpAllAround()
+    utils.refuel()
+    local ahead = utils.inspectAhead()
+    if ahead and string.find(ahead, "log") then
+      print("Edessä puu, hakataan se.")
+      hakkaaPuu()
+      istutaTaimi()
+      sleep(0.5)
+    end
+    -- jos yllä on puu, hakkaa sekin
+    local above = utils.inspectUp()
+    local below = utils.inspectDown()
+    if (above and string.find(above.name, "log")) or (below and string.find(below.name, "log")) then
+      print("Yllä/Alla puu, hakataan se.")
+      hakkaaPuu(true)
+      istutaTaimi()
+      sleep(0.5)
+    end
 
-	below = utils.inspectDown()
-	if below and string.find(below.name, "sapling") then
-    print("Alapuolella taimi, mennään eteenpäin.")
-	else
-		print("Ei saplingia alapuolella, käännytään.")
-		utils.turnAround()
-		sleep(60)
-	end
+    below = utils.inspectDown()
+    if below and string.find(below.name, "sapling") then
+      print("Alapuolella taimi, mennään eteenpäin.")
+    else
+      print("Ei saplingia alapuolella, käännytään.")
+      tracker:turnAround()
+      sleep(60)
+    end
+  end)
 end

@@ -68,12 +68,6 @@ function M.inspectAhead()
   return nil
 end
 
--- Käänny 180 astetta
-function M.turnAround()
-	turtle.turnRight()
-	turtle.turnRight()
-	print("Käännyttiin 180 astetta.")
-end
 
 local filename = "turtle_state.txt"
 
