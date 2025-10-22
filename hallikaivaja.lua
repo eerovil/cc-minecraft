@@ -3,7 +3,7 @@ local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 
 
-local PITUUS=10
+local PITUUS=4
 
 -- Pääsilmukka: kaiva 2 korkuista tunnelia x blokkia, sitten käänny 180 astetta ja toista
 while true do
