@@ -133,6 +133,7 @@ while true do
         tracker:turnRight()
         -- mene alas
         tracker:down()
+        kaiva(false)
         tracker:forward()
         laitaSoihtuTaakse()
     end)
