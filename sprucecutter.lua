@@ -127,6 +127,8 @@ local function istutaKuusi()
   tracker:safeForward()
   istutaTaimi()
   tracker:turnLeft()
+  tracker:safeForward()
+  tracker:turnLeft()
   tracker:back()
   tracker:down()
 end
@@ -154,8 +156,8 @@ while true do
     end
     -- liiku taaksepäin 1
     tracker:back()
-    -- odota 10 sekuntia ennen seuraavaa tarkistusta
-    os.sleep(10)
+    -- odota 2 sekuntia ennen seuraavaa tarkistusta
+    os.sleep(2)
     -- käänny 180 astetta
     tracker:turnRight()
   end)
