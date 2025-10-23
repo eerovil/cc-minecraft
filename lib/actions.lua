@@ -69,7 +69,7 @@ function Actions.new(name, opts)
   local self=setmetatable({},Actions)
   self.name=name
   self.path=opts.path or (STATE_DIR.."/"..name..".json")
-  self.state={ last_step=0, pending=nil, version=1 }
+  self.state={ last_step=0, pending=nil, version=1, results={} }
   local s=readFile(self.path)
   if s then local t=jsonDecode(s); if type(t)=="table" then self.state=t end end
   if not fs.exists(STATE_DIR) then fs.makeDir(STATE_DIR) end
@@ -104,20 +104,31 @@ function Actions:runStep(fn,opts)
     if self.state.last_step>=step then return "resumed-completed" end
   end
 
-  if self.state.last_step>=step then return "skipped" end
+  if self.state.last_step>=step then
+    -- check for possible stored result
+    local result=self.state.results[step]
+    if result then
+      return result.ok, result.data
+    else
+      return "skipped"
+    end
+  end
 
   local fuel_before=getFuel()
   self.state.pending={step=step,fuel_before=fuel_before,min_fuel=min_fuel,ts=now_ms()}
   self:save()
 
-  local ok,err=pcall(fn)
+  local ok,data=pcall(fn)
   if not ok then
     self:reconcilePending()
     if self.state.last_step>=step then return "auto-completed" end
-    error("Step #"..step.." failed: "..tostring(err))
+    error("Step #"..step.." failed: "..tostring(data))
   end
-  self.state.last_step=step
-  self.state.pending=nil
+  if opts.store_result then
+    self.state.results[step] = { ok = ok, data = data }
+  end
+  self.state.last_step = step
+  self.state.pending = nil
   self:save()
   return "done"
 end
@@ -219,7 +230,7 @@ function Actions:inspect()
   local success, data
   self:runStep(function()
     success, data = turtle.inspect()
-  end,{min_fuel=0})
+  end,{min_fuel=0, store_result=true})
   return success, data
 end
 
@@ -227,7 +238,7 @@ function Actions:inspectUp()
   local success, data
   self:runStep(function()
     success, data = turtle.inspectUp()
-  end,{min_fuel=0})
+  end,{min_fuel=0, store_result=true})
   return success, data
 end
 
@@ -235,7 +246,7 @@ function Actions:inspectDown()
   local success, data
   self:runStep(function()
     success, data = turtle.inspectDown()
-  end,{min_fuel=0})
+  end,{min_fuel=0, store_result=true})
   return success, data
 end
 
