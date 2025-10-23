@@ -1,79 +1,23 @@
 -- Kaivaa kahden blokin korkuista tunnelia eteenpäin
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
+local SuoniKaivaja = dofile("lib/ore.lua")
 tracker = Actions.new("miner")
+local interestingBlocks = {
+    "minecraft:diamond_ore",
+    "minecraft:gold_ore",
+    "minecraft:emerald_ore",
+    "minecraft:iron_ore",
+    "minecraft:coal_ore",
+    "minecraft:redstone_ore",
+    "minecraft:lapis_ore",
+}
 
--- funktio: kerro onko blokki mielenkiintoinen
-local function isInterestingBlock(blockName)
-    local interestingBlocks = {
-        "minecraft:diamond_ore",
-        "minecraft:gold_ore",
-        "minecraft:emerald_ore",
-        "minecraft:iron_ore",
-        "minecraft:coal_ore",
-        "minecraft:redstone_ore",
-        "minecraft:lapis_ore",
-    }
-    for _, name in ipairs(interestingBlocks) do
-        if blockName == name then
-            return true
-        end
-    end
-    return false
-end
-
-
--- Etukäteisviittaukset funktioihin, jotta rekursio toimii
-local inspectSurroundings, kaivaSuoni
-
-kaivaSuoni = function(direction)
-    if direction == "up" then
-        tracker:digUp()
-        tracker:safeUp()
-        inspectSurroundings()
-        tracker:safeDown()
-    elseif direction == "down" then
-        tracker:digDown()
-        tracker:safeDown()
-        inspectSurroundings()
-        tracker:safeUp()
-    elseif direction == "forward" then
-        tracker:dig()
-        tracker:safeForward()
-        inspectSurroundings()
-        tracker:safeBack()
-    end
-end
-
-inspectSurroundings = function()
-    -- ensin katso ylös
-    local successUp, dataUp = turtle:inspectUp()
-    if successUp and isInterestingBlock(dataUp.name) then
-        print("Yläpuolella: " .. (dataUp.name or "tuntematon"))
-        kaivaSuoni("up")
-    end
-    -- sitten katso alas
-    local successDown, dataDown = turtle:inspectDown()
-    if successDown and isInterestingBlock(dataDown.name) then
-        print("Alapuolella: " .. (dataDown.name or "tuntematon"))
-        kaivaSuoni("down")
-    end
-    -- sitten katso eteen
-    local successAhead, dataDown = turtle:inspect()
-    if successAhead and isInterestingBlock(dataDown.name) then
-        print("Alapuolella: " .. (dataDown.name or "tuntematon"))
-        kaivaSuoni("down")
-    end
-    print("Ei mielenkiintoista ympärillä.")
-    return nil
-end
 
 local kaiva = function(eitsekkaa)
     utils.refuel()
-    -- -- ennen kaivamista, tarkista ympäristö
-    -- if not eitsekkaa then
-    --     inspectSurroundings()
-    -- end
+    local suoniKaivaja = SuoniKaivaja.new(tracker, interestingBlocks)
+    suoniKaivaja:aloita()
     tracker:dig()
     -- jos yläpuolella on soihtu, älä kaiva sitä pois
     local successUp, dataUp = turtle.inspectUp()
