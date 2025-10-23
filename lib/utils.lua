@@ -107,6 +107,7 @@ function M.getLabel()
             print("Ei voitu päätellä roolia nimestä.")
             return
         end
+        return label
     end
 end
 

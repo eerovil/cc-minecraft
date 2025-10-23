@@ -6,4 +6,6 @@ if label then
     print("Reset: " .. label)
     tracker = Actions.new(role)
     tracker:completeCycle()
+else
+  print("Ei labelia!")
 end
