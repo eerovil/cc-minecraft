@@ -190,12 +190,12 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local taakse = neighborPositions[2]
     local oikealle = neighborPositions[1]
     local vasemmalle = neighborPositions[3]
+    local startFacing = self.facing
     print("Naapurit: taakse.visited="..tostring(taakse.visited)..
           ", oikealle.visited="..tostring(oikealle.visited)..
           ", vasemmalle.visited="..tostring(vasemmalle.visited))
     if (not taakse.visited or (not oikealle.visited and not vasemmalle.visited)) then
         -- neljä seinää
-        local startFacing = self.facing
         for i = 1, 4 do
             local ok, data = turtle.inspect()
             local nx,ny,nz = self:_neighborPos("forward")
