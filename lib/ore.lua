@@ -191,12 +191,27 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local oikealle = neighborPositions[2]
     local vasemmalle = neighborPositions[4]
     local startFacing = self.facing
+    local ok, data = turtle.inspect()
+    local nx,ny,nz = self:_neighborPos("forward")
+    if ok and self.interesting[data.name] then
+        if not self:_isVisited(nx,ny,nz) then
+            print("Eessä: "..data.name)
+            if self:_digAndMove("forward") then
+                self:_scanAround("back")
+                self:_backtrack("forward")
+            end
+        end
+    else
+        -- ei mielenkiintoinen, mutta merkitään käydyksi
+        self:_markVisited(nx,ny,nz)
+    end
     print("Naapurit: taakse.visited="..tostring(taakse.visited)..
           ", oikealle.visited="..tostring(oikealle.visited)..
           ", vasemmalle.visited="..tostring(vasemmalle.visited))
     if (not taakse.visited or (not oikealle.visited and not vasemmalle.visited)) then
         -- neljä seinää
-        for i = 1, 4 do
+        self:_turnRight()
+        for i = 1, 3 do
             local ok, data = turtle.inspect()
             local nx,ny,nz = self:_neighborPos("forward")
             if ok and self.interesting[data.name] then
