@@ -2,11 +2,11 @@
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
-tracker = Actions.new("pinecutter")
+tracker = Actions.new("sprucecutter")
 
-local PINE_LOG_BLOCK = "minecraft:pine_log"
-local PINE_SAPLING_ITEM = "minecraft:pine_sapling"
-local LEAVES_BLOCK = "minecraft:pine_leaves"
+local PINE_LOG_BLOCK = "minecraft:spruce_log"
+local PINE_SAPLING_ITEM = "minecraft:spruce_sapling"
+local LEAVES_BLOCK = "minecraft:spruce_leaves"
 
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
@@ -16,6 +16,7 @@ local function hakkaaYlos()
       tracker:digUp()
       tracker:up()
     else
+      print("yläpuolella: " .. (data and data.name or "ei mitään"))
       break
     end
   end
@@ -29,6 +30,7 @@ local function hakkaaAlas()
       tracker:digDown()
       tracker:down()
     else
+      print("alapuolella: " .. (data and data.name or "ei mitään"))
       break
     end
   end
