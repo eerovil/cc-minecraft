@@ -144,7 +144,7 @@ function SuoniKaivaja:_getNeighborPositions()
     return pos
 end
 
-function quickCheck(tbl, val)
+function SuoniKaivaja:quickCheck()
     -- check ahead, up, down and mark visited if not interesting
     for _, dir in ipairs({"forward", "up", "down"}) do
         local ok, data
