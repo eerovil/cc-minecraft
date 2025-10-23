@@ -13,7 +13,7 @@ end
 function M.refuel()
     local goodFuel = {"minecraft:coal", "minecraft:charcoal"}
     -- jos polttoainetta on alle 500, yritä tankata
-    if turtle.getFuelLevel() < 500 then
+    if turtle.getFuelLevel() < 2000 then
         print("Polttoainetta vähän, yritetään tankata...")
         for slot = 1, 16 do
             turtle.select(slot)
@@ -23,7 +23,7 @@ function M.refuel()
                 if itemDetail.name == goodFuel[1] or itemDetail.name == goodFuel[2] then
                     turtle.refuel()
                     print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
-                    if turtle.getFuelLevel() >= 1000 then
+                    if turtle.getFuelLevel() >= 2000 then
                         print("Polttoaine riittää nyt.")
                         return true
                     end
