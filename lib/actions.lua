@@ -165,8 +165,7 @@ function Actions:runStep(fn, opts)
     }
     self:save()
 
-    local ok, data = pcall(fn)
-    print("[actions] step " .. step .. " completed, ok=" .. tostring(ok) .. ", data=" .. tostring(data))
+    local ok, data = fn()
     if not ok then
         self:reconcilePending()
         if self.state.last_step >= step then
@@ -174,7 +173,7 @@ function Actions:runStep(fn, opts)
             local res = self.state.results[step]
             if res then
                 local ok2, value = pcall(textutils.unserialize, res.data)
-                return ok2, value
+                return true, value or res.data
             end
         end
         error("Step #" .. step .. " failed: " .. tostring(data))
@@ -349,7 +348,6 @@ function Actions:inspect()
         min_fuel = 0,
         store_result = true
     })
-    print("[actions] inspect result: " .. textutils.serialize(result))
     return ok, result
 end
 
