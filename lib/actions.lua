@@ -137,7 +137,11 @@ function Actions:safeForward(n)
   return self:runStep(function()
     n=n or 1
     for i=1,n do
-      while not turtle.forward() do
+      while true do
+        local ok, reason = turtle.forward()
+        if ok then break end
+        -- jos bensa loppu, heitetään error
+        if reason == "out of fuel" then error("out of fuel") end
         turtle.dig()
         sleep(0.2)
       end
