@@ -141,7 +141,10 @@ function Actions:safeForward(n)
         local ok, reason = turtle.forward()
         if ok then break end
         -- jos bensa loppu, heitetään error
-        if reason == "out of fuel" then error("out of fuel") end
+        if reason and string.find(reason:lower(), "fuel") then
+          error("Et voi liikkua eteenpäin: " .. tostring(reason))
+        end
+        print("Et voi liikkua eteenpäin: " .. tostring(reason))
         turtle.dig()
         sleep(0.2)
       end
