@@ -44,7 +44,32 @@ local function runRoleProgram(label)
   end
 end
 
+local function waitForKeyPress()
+  --- wait 2 seconds for a key press, if any, run 
+  ---
+    -- tracker = Actions.new(role)
+    -- tracker:completeCycle()
+  print("Paina mitä tahansa näppäintä 2 sekunnin sisällä resetoidaksesi...")
+  local timer = os.startTimer(2)
+  while true do
+    local event, param1 = os.pullEvent()
+    if event == "key" then
+      print("Näppäintä painettu.")
+      return true
+    elseif event == "timer" and param1 == timer then
+      print("Ajetaan roolin ohjelma.")
+      return false
+    end
+  end
+end
+
 -- ===== Pääohjelma =====
 local label = ensureLabel()
 runUpdate()
-runRoleProgram(label)
+if label then
+  if waitForKeyPress() then
+    runRoleProgram(label)
+  else
+    shell.run("resetstate")
+  end
+end
