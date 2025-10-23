@@ -147,12 +147,16 @@ function Actions:runStep(fn, opts)
 
     -- Jos vaihe on jo valmis, palauta edellinen tulos
     if self.state.last_step >= step then
-        local res = self.state.results[tostring(step)]
-        if res then
-            local ok, value = pcall(textutils.unserialize, res.data)
-            return res.ok, ok and value or res.data
+        if self.state.results then
+          local res = self.state.results[tostring(step)]
+          if res then
+              local ok, value = pcall(textutils.unserialize, res.data)
+              return res.ok, ok and value or res.data
+          else
+              return true, {name = "unknown"}
+          end
         else
-            return true, {name = "unknown"}
+          return true, {name = "unknown"}
         end
     end
 
