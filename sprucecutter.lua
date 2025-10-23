@@ -18,7 +18,7 @@ local function hakkaaYlos()
     if success and data.name == LEAVES_BLOCK then
       -- hakkaa suoni lehtiä
       local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
-      suoniKaivaja:inspectSurroundings()
+      suoniKaivaja:aloita()
     end
 
     local success, data = tracker:inspectUp()
@@ -40,7 +40,7 @@ local function hakkaaAlas()
     if success and data.name == LEAVES_BLOCK then
       -- hakkaa suoni lehtiä
       local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
-      suoniKaivaja:inspectSurroundings()
+      suoniKaivaja:aloita()
     end
 
     local success, data = tracker:inspectDown()

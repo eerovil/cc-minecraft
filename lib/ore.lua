@@ -1,67 +1,176 @@
+-- SuoniKaivaja.lua
 local SuoniKaivaja = {}
 SuoniKaivaja.__index = SuoniKaivaja
 
+local RIGHT = { north="east", east="south", south="west", west="north" }
+local LEFT  = { north="west", west="south", south="east", east="north" }
+local DX = { north=0,  east=1, south=0,  west=-1 }
+local DZ = { north=-1, east=0, south=1,  west=0  }
+
+local function key(x,y,z)
+    return table.concat({x,y,z}, ",")
+end
+
+local function makeSet(list)
+    local s = {}
+    for _, v in ipairs(list or {}) do s[v] = true end
+    return s
+end
+
+local function opposite(dir)
+    if dir == "up" then return "down" end
+    if dir == "down" then return "up" end
+    if dir == "forward" then return "back" end
+end
+
+-- Luo uusi SuoniKaivaja
 function SuoniKaivaja.new(tracker, interestingBlocks)
     local self = setmetatable({}, SuoniKaivaja)
     self.tracker = tracker
-    -- tee taulukko mielenkiintoisista blokeista
-    self.isInterestingBlock = {}
-    for _, name in ipairs(interestingBlocks) do
-        self.isInterestingBlock[name] = true
-    end
+    self.interesting = makeSet(interestingBlocks)
+    self.pos = {x=0, y=0, z=0}
+    self.facing = "north"
+    self.visited = { [key(0,0,0)] = true }
     return self
 end
 
-function SuoniKaivaja:kaivaSuoni(direction)
-    if direction == "up" then
-        self.tracker:digUp()
-        self.tracker:up()
-        self:inspectSurroundings()
-        self.tracker:down()
-    elseif direction == "down" then
-        self.tracker:digDown()
-        self.tracker:down()
-        self:inspectSurroundings()
-        self.tracker:up()
-    elseif direction == "forward" then
-        self.tracker:dig()
-        self.tracker:safeForward()
-        self:inspectSurroundings()
-        self.tracker:back()
+-- --- orientaatio & liike seuraaminen ---
+function SuoniKaivaja:_turnRight()
+    self.tracker:turnRight()
+    self.facing = RIGHT[self.facing]
+end
+
+function SuoniKaivaja:_turnLeft()
+    self.tracker:turnLeft()
+    self.facing = LEFT[self.facing]
+end
+
+function SuoniKaivaja:_moveForward()
+    if self.tracker:safeForward() then
+        self.pos.x = self.pos.x + DX[self.facing]
+        self.pos.z = self.pos.z + DZ[self.facing]
+        return true
     end
 end
 
-function SuoniKaivaja:inspectSurroundings()
-    -- ensin katso ylös
-    local successUp, dataUp = turtle:inspectUp()
-    if successUp and self.isInterestingBlock[dataUp.name] then
-        print("Yläpuolella: " .. (dataUp.name or "tuntematon"))
-        self:kaivaSuoni("up")
+function SuoniKaivaja:_moveBack()
+    if self.tracker:back() then
+        self.pos.x = self.pos.x - DX[self.facing]
+        self.pos.z = self.pos.z - DZ[self.facing]
+        return true
     end
-    -- sitten katso alas
-    local successDown, dataDown = turtle:inspectDown()
-    if successDown and self.isInterestingBlock[dataDown.name] then
-        print("Alapuolella: " .. (dataDown.name or "tuntematon"))
-        self:kaivaSuoni("down")
+end
+
+function SuoniKaivaja:_moveUp()
+    if self.tracker:up() then
+        self.pos.y = self.pos.y + 1
+        return true
     end
-    -- sitten katso eteen
-    local successAhead, dataDown = turtle:inspect()
-    if successAhead and self.isInterestingBlock[dataDown.name] then
-        print("Alapuolella: " .. (dataDown.name or "tuntematon"))
-        self:kaivaSuoni("down")
+end
+
+function SuoniKaivaja:_moveDown()
+    if self.tracker:down() then
+        self.pos.y = self.pos.y - 1
+        return true
     end
-    -- katso oikealle, taakse, vasemmalle
-    for i = 1, 3 do
-        self.tracker:turnRight()
-        local successSide, dataSide = turtle:inspect()
-        if successSide and self.isInterestingBlock[dataSide.name] then
-            print("Sivulla: " .. (dataSide.name or "tuntematon"))
-            self:kaivaSuoni("forward")
+end
+
+-- --- apu ---
+function SuoniKaivaja:_neighborPos(dir)
+    local x,y,z = self.pos.x, self.pos.y, self.pos.z
+    if dir == "up" then return x, y+1, z end
+    if dir == "down" then return x, y-1, z end
+    return x + DX[self.facing], y, z + DZ[self.facing]
+end
+
+function SuoniKaivaja:_markVisited(x,y,z)
+    self.visited[key(x,y,z)] = true
+end
+
+function SuoniKaivaja:_isVisited(x,y,z)
+    return self.visited[key(x,y,z)] == true
+end
+
+-- --- suonen seuraaminen ---
+function SuoniKaivaja:_digAndMove(dir)
+    if dir == "up" then
+        self.tracker:digUp()
+        if not self:_moveUp() then return false end
+    elseif dir == "down" then
+        self.tracker:digDown()
+        if not self:_moveDown() then return false end
+    elseif dir == "forward" then
+        self.tracker:dig()
+        if not self:_moveForward() then return false end
+    end
+    local x,y,z = self.pos.x, self.pos.y, self.pos.z
+    self:_markVisited(x,y,z)
+    return true
+end
+
+function SuoniKaivaja:_backtrack(dir)
+    if dir == "up" then self:_moveDown()
+    elseif dir == "down" then self:_moveUp()
+    elseif dir == "forward" then self:_moveBack()
+    end
+end
+
+function SuoniKaivaja:_scanAround(cameFrom)
+    -- ylös
+    if cameFrom ~= "up" then
+        local ok, data = turtle.inspectUp()
+        if ok and self.interesting[data.name] then
+            local nx,ny,nz = self:_neighborPos("up")
+            if not self:_isVisited(nx,ny,nz) then
+                print("Ylös: "..data.name)
+                if self:_digAndMove("up") then
+                    self:_scanAround("down")
+                    self:_backtrack("up")
+                end
+            end
         end
     end
-    self.tracker:turnRight()
-    print("Ei mielenkiintoista ympärillä.")
-    return nil
+
+    -- alas
+    if cameFrom ~= "down" then
+        local ok, data = turtle.inspectDown()
+        if ok and self.interesting[data.name] then
+            local nx,ny,nz = self:_neighborPos("down")
+            if not self:_isVisited(nx,ny,nz) then
+                print("Alas: "..data.name)
+                if self:_digAndMove("down") then
+                    self:_scanAround("up")
+                    self:_backtrack("down")
+                end
+            end
+        end
+    end
+
+    -- neljä seinää
+    local startFacing = self.facing
+    for i = 1, 4 do
+        local ok, data = turtle.inspect()
+        if ok and self.interesting[data.name] then
+            local nx,ny,nz = self:_neighborPos("forward")
+            if not self:_isVisited(nx,ny,nz) then
+                print("Eessä: "..data.name)
+                if self:_digAndMove("forward") then
+                    self:_scanAround("back")
+                    self:_backtrack("forward")
+                end
+            end
+        end
+        self:_turnRight()
+    end
+
+    -- palauta alkuorientaatio
+    while self.facing ~= startFacing do self:_turnRight() end
+end
+
+-- julkinen pääfunktio
+function SuoniKaivaja:aloita()
+    self:_scanAround(nil)
+    print("Ei lisää mielenkiintoisia blokkeja ympärillä.")
 end
 
 return SuoniKaivaja
