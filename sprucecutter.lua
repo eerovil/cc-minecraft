@@ -87,6 +87,22 @@ local function hakkaaKuusi()
   tracker:back()
 end
 
+
+-- istuta taimi alapuolelle
+local function istutaTaimi()
+  -- Etsi taimi inventaariosta
+  for slot = 1, 16 do
+    local item = turtle.getItemDetail(slot)
+    if item and string.find(item.name, "sapling") then
+      turtle.select(slot)
+      turtle.placeDown()
+      print("Istutettu taimi alapuolelle.")
+      return
+    end
+  end
+  print("Ei tainta inventaariossa!")
+end
+
 -- istuta kuusi edessä
 local function istutaKuusi()
   tracker:safeForward()
@@ -105,21 +121,6 @@ local function istutaKuusi()
   tracker:down()
 end
 
-
--- istuta taimi alapuolelle
-local function istutaTaimi()
-  -- Etsi taimi inventaariosta
-  for slot = 1, 16 do
-    local item = turtle.getItemDetail(slot)
-    if item and string.find(item.name, "sapling") then
-      turtle.select(slot)
-      turtle.placeDown()
-      print("Istutettu taimi alapuolelle.")
-      return
-    end
-  end
-  print("Ei tainta inventaariossa!")
-end
 
 local suckUpAllAround = function()
   for i = 1, 4 do
