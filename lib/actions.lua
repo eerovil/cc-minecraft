@@ -265,8 +265,11 @@ end
 -- after each cycle, the step counter is reset to 0.
 
 function Actions:completeCycle()
-    localStep = 0
-  self.state.last_step=0; self.state.pending=nil; self:save()
+  localStep = 0
+  self.state.results = {}
+  self.state.last_step = 0;
+  self.state.pending = nil;
+  self:save()
 end
 
 function Actions:cycle(fn)
