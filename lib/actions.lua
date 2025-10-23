@@ -215,6 +215,30 @@ function Actions:place()
   return self:runStep(function() turtle.place() end,{min_fuel=0})
 end
 
+function Actions:inspect()
+  local success, data
+  self:runStep(function()
+    success, data = turtle.inspect()
+  end,{min_fuel=0})
+  return success, data
+end
+
+function Actions:inspectUp()
+  local success, data
+  self:runStep(function()
+    success, data = turtle.inspectUp()
+  end,{min_fuel=0})
+  return success, data
+end
+
+function Actions:inspectDown()
+  local success, data
+  self:runStep(function()
+    success, data = turtle.inspectDown()
+  end,{min_fuel=0})
+  return success, data
+end
+
 -- cycle helper: Using this prevents the step counter from growing indefinitely.
 -- usage
 -- while true do

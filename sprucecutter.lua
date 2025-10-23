@@ -12,7 +12,7 @@ local LEAVES_BLOCK = "minecraft:spruce_leaves"
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
   while true do
-    local success, data = turtle.inspect()
+    local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
     if success and data.name == LEAVES_BLOCK then
       -- hakkaa suoni lehtiä
@@ -20,7 +20,7 @@ local function hakkaaYlos()
       suoniKaivaja:inspectSurroundings()
     end
 
-    local success, data = turtle.inspectUp()
+    local success, data = tracker:inspectUp()
     if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digUp()
       tracker:up()
@@ -34,7 +34,7 @@ end
 -- Hakkaa alas kunnes ei enää leaves tai log alapuolella
 local function hakkaaAlas()
   while true do
-    local success, data = turtle.inspectDown()
+    local success, data = tracker:inspectDown()
     if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digDown()
       tracker:down()
