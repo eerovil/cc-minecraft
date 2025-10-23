@@ -76,6 +76,7 @@ local suckUpAllAround = function()
   end
 end
 
+utils.refuel()
 hakkaaKuusi()
 
 -- -- Pääsilmukka
