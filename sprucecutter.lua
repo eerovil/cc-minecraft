@@ -145,7 +145,7 @@ local etsiMaa = function()
   -- mene alas kunnes jotain
   while true do
     local success, data = tracker:inspectDown()
-    if success then
+    if success and data then
       print("Löytyi maa: " .. data.name)
       return
     end

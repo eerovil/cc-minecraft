@@ -179,7 +179,7 @@ function Actions:runStep(fn, opts)
     self.state.pending = nil
     self:save()
 
-    return true, data
+    return ok, data
 end
 
 function Actions:moveForward()
