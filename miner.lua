@@ -29,19 +29,19 @@ local inspectSurroundings, kaivaSuoni
 kaivaSuoni = function(direction)
     if direction == "up" then
         tracker:digUp()
-        tracker:up()
+        tracker:safeUp()
         inspectSurroundings()
-        tracker:down()
+        tracker:safeDown()
     elseif direction == "down" then
         tracker:digDown()
-        tracker:down()
+        tracker:safeDown()
         inspectSurroundings()
-        tracker:up()
+        tracker:safeUp()
     elseif direction == "forward" then
         tracker:dig()
         tracker:safeForward()
         inspectSurroundings()
-        tracker:back()
+        tracker:safeBack()
     end
 end
 
@@ -129,7 +129,7 @@ while true do
         end
         -- mene ylös
         tracker:digUp()
-        tracker:up()
+        tracker:safeUp()
         tracker:turnLeft()
 
         for i = 1, 5 do
@@ -151,7 +151,7 @@ while true do
         -- oikealle
         tracker:turnRight()
         -- mene alas
-        tracker:down()
+        tracker:safeDown()
         kaiva(false)
         asetaBlokkiAlas()
         tracker:safeForward()

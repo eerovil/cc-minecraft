@@ -55,7 +55,7 @@ function SuoniKaivaja:_moveForward()
 end
 
 function SuoniKaivaja:_moveBack()
-    if self.tracker:back() then
+    if self.tracker:safeBack() then
         self.pos.x = self.pos.x - DX[self.facing]
         self.pos.z = self.pos.z - DZ[self.facing]
         return true
@@ -63,14 +63,14 @@ function SuoniKaivaja:_moveBack()
 end
 
 function SuoniKaivaja:_moveUp()
-    if self.tracker:up() then
+    if self.tracker:safeUp() then
         self.pos.y = self.pos.y + 1
         return true
     end
 end
 
 function SuoniKaivaja:_moveDown()
-    if self.tracker:down() then
+    if self.tracker:safeDown() then
         self.pos.y = self.pos.y - 1
         return true
     end

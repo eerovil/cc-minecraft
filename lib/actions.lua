@@ -202,6 +202,28 @@ function Actions:back()
     return self:moveBack()
 end
 
+function Actions:safeBack()
+    return self:runStep(function()
+        while true do
+            local ok, reason = turtle.back()
+            if ok then
+              return ok, reason
+            end
+            -- jos bensa loppu, heitetään error
+            if reason and string.find(reason:lower(), "fuel") then
+                error("Et voi liikkua ylös: " .. tostring(reason))
+            end
+            print("Et voi liikkua ylös: " .. tostring(reason))
+            turtle.turnLeft()
+            turtle.turnLeft()
+            turtle.dig()
+            turtle.turnLeft()
+            turtle.turnLeft()
+            sleep(0.2)
+        end
+    end)
+end
+
 function Actions:safeForward()
     return self:runStep(function()
         while true do
@@ -230,6 +252,24 @@ function Actions:up()
     return self:moveUp()
 end
 
+function Actions:safeUp()
+    return self:runStep(function()
+        while true do
+            local ok, reason = turtle.up()
+            if ok then
+              return ok, reason
+            end
+            -- jos bensa loppu, heitetään error
+            if reason and string.find(reason:lower(), "fuel") then
+                error("Et voi liikkua ylös: " .. tostring(reason))
+            end
+            print("Et voi liikkua ylös: " .. tostring(reason))
+            turtle.digUp()
+            sleep(0.2)
+        end
+    end)
+end
+
 function Actions:moveDown()
     return self:runStep(function()
         return turtle.down()
@@ -238,6 +278,24 @@ end
 
 function Actions:down()
     return self:moveDown()
+end
+
+function Actions:safeDown()
+    return self:runStep(function()
+        while true do
+            local ok, reason = turtle.down()
+            if ok then
+              return ok, reason
+            end
+            -- jos bensa loppu, heitetään error
+            if reason and string.find(reason:lower(), "fuel") then
+                error("Et voi liikkua alas: " .. tostring(reason))
+            end
+            print("Et voi liikkua alas: " .. tostring(reason))
+            turtle.digDown()
+            sleep(0.2)
+        end
+    end)
 end
 
 function Actions:turnLeft()

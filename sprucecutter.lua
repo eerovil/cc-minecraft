@@ -36,13 +36,13 @@ local function hakkaaYlos()
     local success, data = tracker:inspectUp()
     if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digUp()
-      tracker:up()
+      tracker:safeUp()
     else
       print("yläpuolella: " .. (data and data.name or "ei mitään"))
       tracker:digUp()
-      tracker:up()
+      tracker:safeUp()
       tracker:digUp()
-      tracker:up()
+      tracker:safeUp()
       break
     end
   end
@@ -51,9 +51,9 @@ end
 -- Hakkaa alas kunnes ei enää leaves tai log alapuolella
 local function hakkaaAlas()
   tracker:digDown()
-  tracker:down()
+  tracker:safeDown()
   tracker:digDown()
-  tracker:down()
+  tracker:safeDown()
   while true do
     utils.refuel()
     local success, data = tracker:inspect()
@@ -67,7 +67,7 @@ local function hakkaaAlas()
     local success, data = tracker:inspectDown()
     if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digDown()
-      tracker:down()
+      tracker:safeDown()
     else
       print("alapuolella: " .. (data and data.name or "ei mitään"))
       break
@@ -94,7 +94,7 @@ local function hakkaaKuusi()
   tracker:turnLeft()
   tracker:safeForward()
   tracker:turnLeft()
-  tracker:back()
+  tracker:safeBack()
 end
 
 
@@ -116,7 +116,7 @@ end
 -- istuta kuusi edessä
 local function istutaKuusi()
   tracker:safeForward()
-  tracker:up()
+  tracker:safeUp()
   istutaTaimi()
   tracker:safeForward()
   istutaTaimi()
@@ -130,7 +130,7 @@ local function istutaKuusi()
   tracker:safeForward()
   tracker:turnLeft()
   tracker:back()
-  tracker:down()
+  tracker:safeDown()
 end
 
 
