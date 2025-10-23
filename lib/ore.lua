@@ -173,6 +173,7 @@ end
 function SuoniKaivaja:_scanAround(cameFrom)
     if self.endMiningCallback and self.endMiningCallback() then
         print("Lopetetaan kaivuu ulkoisesta syystä.")
+        self.interesting = {}  -- tyhjennä mielenkiintoiset blokit, jotta lopetetaan
         return
     end
     self:_quickCheck()
