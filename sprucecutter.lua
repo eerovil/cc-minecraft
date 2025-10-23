@@ -4,15 +4,15 @@ local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 tracker = Actions.new("sprucecutter")
 
-local PINE_LOG_BLOCK = "minecraft:spruce_log"
-local PINE_SAPLING_ITEM = "minecraft:spruce_sapling"
+local SPRUCE_LOG_BLOCK = "minecraft:spruce_log"
+local SPRUCE_SAPLING_ITEM = "minecraft:spruce_sapling"
 local LEAVES_BLOCK = "minecraft:spruce_leaves"
 
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
   while true do
     local success, data = turtle.inspectUp()
-    if success and (data.name == PINE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
+    if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digUp()
       tracker:up()
     else
@@ -26,7 +26,7 @@ end
 local function hakkaaAlas()
   while true do
     local success, data = turtle.inspectDown()
-    if success and (data.name == PINE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
+    if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digDown()
       tracker:down()
     else
