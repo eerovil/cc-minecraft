@@ -104,13 +104,14 @@ function Actions:runStep(fn,opts)
     if self.state.last_step>=step then return "resumed-completed" end
   end
 
-  if self.state.last_step>=step then
-    -- check for possible stored result
-    local result=self.state.results[step]
-    if result then
-      return result.ok, result.data
+  -- Jos vaihe on jo valmis, palauta edellinen tulos
+  if self.state.last_step >= step then
+    local res = self.state.results[step]
+    if res then
+      local ok, value = pcall(textutils.unserialize, res.data)
+      return true, ok and value or res.data
     else
-      return "skipped"
+      return true, nil
     end
   end
 
@@ -118,19 +119,34 @@ function Actions:runStep(fn,opts)
   self.state.pending={step=step,fuel_before=fuel_before,min_fuel=min_fuel,ts=now_ms()}
   self:save()
 
-  local ok,data=pcall(fn)
+  local ok, data = pcall(fn)
   if not ok then
     self:reconcilePending()
-    if self.state.last_step>=step then return "auto-completed" end
-    error("Step #"..step.." failed: "..tostring(data))
+    if self.state.last_step >= step then
+      -- Jos askel ehti silti mennä läpi, palauta viimeisin tallennettu tulos
+      local res = self.state.results[step]
+      if res then
+        local ok2, value = pcall(textutils.unserialize, res.data)
+        return true, ok2 and value or res.data
+      end
+    end
+    error("Step #" .. step .. " failed: " .. tostring(data))
   end
+
+  -- Tallennetaan tulos vain jos pyydetty
   if opts.store_result then
-    self.state.results[step] = { ok = ok, data = data }
+    local encoded
+    local ok_s, enc = pcall(textutils.serialize, data)
+    encoded = ok_s and enc or tostring(data)
+    self.state.results[step] = { data = encoded }
   end
+
+  -- Merkitään askel valmiiksi
   self.state.last_step = step
   self.state.pending = nil
   self:save()
-  return "done"
+
+  return true, data
 end
 
 function Actions:moveForward(n)
@@ -227,27 +243,24 @@ function Actions:place()
 end
 
 function Actions:inspect()
-  local success, data
-  self:runStep(function()
-    success, data = turtle.inspect()
-  end,{min_fuel=0, store_result=true})
-  return success, data
+  local ok, result = self:runStep(function()
+    return turtle.inspect()
+  end, { min_fuel = 0, store_result = true })
+  return ok, result
 end
 
 function Actions:inspectUp()
-  local success, data
-  self:runStep(function()
-    success, data = turtle.inspectUp()
-  end,{min_fuel=0, store_result=true})
-  return success, data
+  local ok, result = self:runStep(function()
+    return turtle.inspectUp()
+  end, { min_fuel = 0, store_result = true })
+  return ok, result
 end
 
 function Actions:inspectDown()
-  local success, data
-  self:runStep(function()
-    success, data = turtle.inspectDown()
-  end,{min_fuel=0, store_result=true})
-  return success, data
+  local ok, result = self:runStep(function()
+    return turtle.inspectDown()
+  end, { min_fuel = 0, store_result = true })
+  return ok, result
 end
 
 -- cycle helper: Using this prevents the step counter from growing indefinitely.
