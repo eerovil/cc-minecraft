@@ -123,7 +123,7 @@ function Actions:reconcilePending()
         return
     end
     local cur = getFuel()
-    local min_fuel = p.min_fuel or 1
+    local min_fuel = p.min_fuel or 0
     if cur < (p.fuel_before - min_fuel) then
         self.state.last_step = p.step
         self.state.pending = nil
@@ -133,7 +133,7 @@ end
 
 function Actions:runStep(fn, opts)
     opts = opts or {}
-    local min_fuel = opts.min_fuel or 1
+    local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
     local step = localStep
     print("[actions] step " .. step .. ", state: " .. jsonEncode(self.state))
@@ -197,155 +197,113 @@ function Actions:runStep(fn, opts)
     return true, data
 end
 
-function Actions:moveForward(n)
-    n = n or 1
+function Actions:moveForward()
     return self:runStep(function()
-        for i = 1, n do
-            assert(turtle.forward(), "blocked")
-        end
-    end, {
-        min_fuel = n
-    })
+        return turtle.forward()
+    end)
 end
 
-function Actions:forward(n)
-    return self:moveForward(n)
+function Actions:forward()
+    return self:moveForward()
 end
 
-function Actions:moveBack(n)
-    n = n or 1
+function Actions:moveBack()
     return self:runStep(function()
-        for i = 1, n do
-            assert(turtle.back(), "blocked")
-        end
-    end, {
-        min_fuel = n
-    })
+        return turtle.back()
+    end)
 end
 
-function Actions:back(n)
-    return self:moveBack(n)
+function Actions:back()
+    return self:moveBack()
 end
 
-function Actions:safeForward(n)
+function Actions:safeForward()
     return self:runStep(function()
-        n = n or 1
-        for i = 1, n do
-            while true do
-                local ok, reason = turtle.forward()
-                if ok then
-                    break
-                end
-                -- jos bensa loppu, heitetään error
-                if reason and string.find(reason:lower(), "fuel") then
-                    error("Et voi liikkua eteenpäin: " .. tostring(reason))
-                end
-                print("Et voi liikkua eteenpäin: " .. tostring(reason))
-                turtle.dig()
-                sleep(0.2)
+        while true do
+            local ok, reason = turtle.forward()
+            if ok then
+              return ok, reason
             end
+            -- jos bensa loppu, heitetään error
+            if reason and string.find(reason:lower(), "fuel") then
+                error("Et voi liikkua eteenpäin: " .. tostring(reason))
+            end
+            print("Et voi liikkua eteenpäin: " .. tostring(reason))
+            turtle.dig()
+            sleep(0.2)
         end
-    end, {
-        min_fuel = n
-    })
+    end)
 end
 
-function Actions:moveUp(n)
-    n = n or 1
+function Actions:moveUp()
     return self:runStep(function()
-        for i = 1, n do
-            assert(turtle.up(), "blocked")
-        end
-    end, {
-        min_fuel = n
-    })
+        return turtle.up()
+    end)
 end
 
-function Actions:up(n)
-    return self:moveUp(n)
+function Actions:up()
+    return self:moveUp()
 end
 
-function Actions:moveDown(n)
-    n = n or 1
+function Actions:moveDown()
     return self:runStep(function()
-        for i = 1, n do
-            assert(turtle.down(), "blocked")
-        end
-    end, {
-        min_fuel = n
-    })
+        return turtle.down()
+    end)
 end
 
-function Actions:down(n)
-    return self:moveDown(n)
+function Actions:down()
+    return self:moveDown()
 end
 
 function Actions:turnLeft()
     return self:runStep(function()
-        turtle.turnLeft()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.turnLeft()
+    end)
 end
 
 function Actions:turnRight()
     return self:runStep(function()
-        turtle.turnRight()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.turnRight()
+    end)
 end
 
 function Actions:turnAround()
     self:runStep(function()
-        turtle.turnRight()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.turnRight()
+    end)
     return self:runStep(function()
-        turtle.turnRight()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.turnRight()
+    end)
 end
 
 function Actions:dig()
     return self:runStep(function()
-        turtle.dig()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.dig()
+    end)
 end
 
 function Actions:digUp()
     return self:runStep(function()
-        turtle.digUp()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.digUp()
+    end)
 end
 
 function Actions:digDown()
     return self:runStep(function()
-        turtle.digDown()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.digDown()
+    end)
 end
 
 function Actions:place()
     return self:runStep(function()
-        turtle.place()
-    end, {
-        min_fuel = 0
-    })
+        return turtle.place()
+    end)
 end
 
 function Actions:inspect()
     local ok, result = self:runStep(function()
         return turtle.inspect()
     end, {
-        min_fuel = 0,
         store_result = true
     })
     return ok, result
@@ -355,7 +313,6 @@ function Actions:inspectUp()
     local ok, result = self:runStep(function()
         return turtle.inspectUp()
     end, {
-        min_fuel = 0,
         store_result = true
     })
     return ok, result
@@ -365,7 +322,6 @@ function Actions:inspectDown()
     local ok, result = self:runStep(function()
         return turtle.inspectDown()
     end, {
-        min_fuel = 0,
         store_result = true
     })
     return ok, result
