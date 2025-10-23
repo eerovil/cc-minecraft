@@ -2,6 +2,7 @@
 -- Liiku eteenpäin kunnes alapuolella ei ole sapling-blokkia, sitten käänny 180 astetta ja jatka
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
+local SuoniKaivaja = dofile("lib/ore.lua")
 tracker = Actions.new("sprucecutter")
 
 local SPRUCE_LOG_BLOCK = "minecraft:spruce_log"
@@ -20,6 +21,9 @@ local function hakkaaYlos()
       break
     end
   end
+  -- hakkaa suoni lehtiä vielä
+  local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
+  suoniKaivaja:inspectSurroundings()
 end
 
 -- Hakkaa alas kunnes ei enää leaves tai log alapuolella

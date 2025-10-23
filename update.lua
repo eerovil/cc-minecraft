@@ -8,6 +8,7 @@ local BRANCH     = "main"                  -- esim. "main" tai "master"
 local FILES = {                            -- src_path_in_repo -> dest_path_on_turtle
   ["lib/utils.lua"]   = "lib/utils.lua",
   ["lib/actions.lua"]   = "lib/actions.lua",
+  ["lib/ore.lua"]   = "lib/ore.lua",
   ["startup.lua"]     = "startup.lua",
   ["newname.lua"]     = "newname.lua",
   ["update.lua"]      = "update.lua",
