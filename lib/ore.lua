@@ -24,13 +24,14 @@ local function opposite(dir)
 end
 
 -- Luo uusi SuoniKaivaja
-function SuoniKaivaja.new(tracker, interestingBlocks)
+function SuoniKaivaja.new(tracker, interestingBlocks, endMiningCallback)
     local self = setmetatable({}, SuoniKaivaja)
     self.tracker = tracker
     self.interesting = makeSet(interestingBlocks)
     self.pos = {x=0, y=0, z=0}
     self.facing = "north"
     self.visited = { [key(0,0,0)] = true }
+    self.endMiningCallback = endMiningCallback
     return self
 end
 
@@ -116,6 +117,11 @@ function SuoniKaivaja:_backtrack(dir)
 end
 
 function SuoniKaivaja:_scanAround(cameFrom)
+    if self.endMiningCallback and self.endMiningCallback() then
+        print("Lopetetaan kaivuu ulkoisesta syystä.")
+        return
+    end
+
     -- ylös
     if cameFrom ~= "up" then
         local ok, data = turtle.inspectUp()

@@ -10,6 +10,17 @@ local SPRUCE_LOG_BLOCK = "minecraft:spruce_log"
 local SPRUCE_SAPLING_ITEM = "minecraft:spruce_sapling"
 local LEAVES_BLOCK = "minecraft:spruce_leaves"
 
+local function riittavastiSaplingeja()
+  local totalSaplings = 0
+  for slot = 1, 16 do
+    local item = turtle.getItemDetail(slot)
+    if item and item.name == SPRUCE_SAPLING_ITEM then
+      totalSaplings = totalSaplings + item.count
+    end
+  end
+  return totalSaplings >= 4
+end
+
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
   while true do
@@ -17,7 +28,7 @@ local function hakkaaYlos()
     -- jos edessä on lehti, hakkaa se pois
     if success and data.name == LEAVES_BLOCK then
       -- hakkaa suoni lehtiä
-      local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
+      local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK}, riittavastiSaplingeja)
       suoniKaivaja:aloita()
     end
 
@@ -39,7 +50,7 @@ local function hakkaaAlas()
     -- jos edessä on lehti, hakkaa se pois
     if success and data.name == LEAVES_BLOCK then
       -- hakkaa suoni lehtiä
-      local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
+      local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK}, riittavastiSaplingeja)
       suoniKaivaja:aloita()
     end
 
