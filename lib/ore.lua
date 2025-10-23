@@ -229,6 +229,12 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local oikealle = neighborPositions[2]
     local vasemmalle = neighborPositions[4]
     local startFacing = self.facing
+
+    -- jos interesting on tyhjä, lopeta
+    if next(self.interesting) == nil then
+        return
+    end
+
     print("Naapurit: taakse.visited="..tostring(taakse.visited)..
           ", oikealle.visited="..tostring(oikealle.visited)..
           ", vasemmalle.visited="..tostring(vasemmalle.visited))
