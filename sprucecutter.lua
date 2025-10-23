@@ -158,7 +158,6 @@ while true do
     os.sleep(10)
     -- käänny 180 astetta
     tracker:turnRight()
-    tracker:turnRight()
   end)
 end
 
