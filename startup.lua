@@ -68,8 +68,8 @@ local label = ensureLabel()
 runUpdate()
 if label then
   if waitForKeyPress() then
-    runRoleProgram(label)
-  else
     shell.run("resetstate")
+  else
+    runRoleProgram(label)
   end
 end
