@@ -141,11 +141,25 @@ local suckUpAllAround = function()
   end
 end
 
+local etsiMaa = function()
+  -- mene alas kunnes jotain
+  while true do
+    local success, data = tracker:inspectDown()
+    if success then
+      print("Löytyi maa: " .. data.name)
+      return
+    end
+    tracker:digDown()
+    tracker:safeDown()
+  end
+end
+
 while true do
   tracker:cycle(function() 
     if not (utils.refuel()) then
       error("Ei riittävästi polttoainetta!")
     end
+    etsiMaa()
     suckUpAllAround()
 
     -- liiku eteenpäin 1
