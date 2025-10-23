@@ -154,8 +154,8 @@ while true do
     end
     -- liiku taaksepäin 1
     tracker:back()
-    -- odota 5 sekuntia ennen seuraavaa tarkistusta
-    os.sleep(5)
+    -- odota 30 sekuntia ennen seuraavaa tarkistusta
+    os.sleep(30)
   end)
 end
 
