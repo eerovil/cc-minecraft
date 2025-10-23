@@ -82,6 +82,27 @@ local function hakkaaKuusi()
   tracker:safeForward()
   hakkaaAlas()
   tracker:turnLeft()
+  tracker:safeForward()
+  tracker:turnLeft()
+  tracker:back()
+end
+
+-- istuta kuusi edessä
+local function istutaKuusi()
+  tracker:safeForward()
+  tracker:up()
+  istutaTaimi()
+  tracker:safeForward()
+  istutaTaimi()
+  tracker:turnLeft()
+  tracker:safeForward()
+  istutaTaimi()
+  tracker:turnLeft()
+  tracker:safeForward()
+  istutaTaimi()
+  tracker:turnLeft()
+  tracker:back()
+  tracker:down()
 end
 
 
@@ -109,6 +130,7 @@ end
 
 utils.refuel()
 hakkaaKuusi()
+istutaKuusi()
 
 -- -- Pääsilmukka
 -- while true do

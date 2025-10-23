@@ -125,8 +125,8 @@ function SuoniKaivaja:_scanAround(cameFrom)
     -- ylös
     if cameFrom ~= "up" then
         local ok, data = turtle.inspectUp()
+        local nx,ny,nz = self:_neighborPos("up")
         if ok and self.interesting[data.name] then
-            local nx,ny,nz = self:_neighborPos("up")
             if not self:_isVisited(nx,ny,nz) then
                 print("Ylös: "..data.name)
                 if self:_digAndMove("up") then
@@ -134,14 +134,17 @@ function SuoniKaivaja:_scanAround(cameFrom)
                     self:_backtrack("up")
                 end
             end
+        else
+            -- ei mielenkiintoinen, mutta merkitään käydyksi
+            self:_markVisited(nx,ny,nz)
         end
     end
 
     -- alas
     if cameFrom ~= "down" then
         local ok, data = turtle.inspectDown()
+        local nx,ny,nz = self:_neighborPos("down")
         if ok and self.interesting[data.name] then
-            local nx,ny,nz = self:_neighborPos("down")
             if not self:_isVisited(nx,ny,nz) then
                 print("Alas: "..data.name)
                 if self:_digAndMove("down") then
@@ -149,6 +152,9 @@ function SuoniKaivaja:_scanAround(cameFrom)
                     self:_backtrack("down")
                 end
             end
+        else
+            -- ei mielenkiintoinen, mutta merkitään käydyksi
+            self:_markVisited(nx,ny,nz)
         end
     end
 
@@ -156,8 +162,8 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local startFacing = self.facing
     for i = 1, 4 do
         local ok, data = turtle.inspect()
+        local nx,ny,nz = self:_neighborPos("forward")
         if ok and self.interesting[data.name] then
-            local nx,ny,nz = self:_neighborPos("forward")
             if not self:_isVisited(nx,ny,nz) then
                 print("Eessä: "..data.name)
                 if self:_digAndMove("forward") then
@@ -165,6 +171,9 @@ function SuoniKaivaja:_scanAround(cameFrom)
                     self:_backtrack("forward")
                 end
             end
+        else
+            -- ei mielenkiintoinen, mutta merkitään käydyksi
+            self:_markVisited(nx,ny,nz)
         end
         self:_turnRight()
     end
