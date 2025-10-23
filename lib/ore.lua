@@ -12,14 +12,6 @@ function SuoniKaivaja.new(tracker, interestingBlocks)
     return self
 end
 
--- funktio: kerro onko blokki mielenkiintoinen
-function SuoniKaivaja:isInterestingBlock(blockName)
-    if self.isInterestingBlock[blockName] then
-        return true
-    end
-    return false
-end
-
 function SuoniKaivaja:kaivaSuoni(direction)
     if direction == "up" then
         self.tracker:digUp()
@@ -42,19 +34,19 @@ end
 function SuoniKaivaja:inspectSurroundings()
     -- ensin katso ylös
     local successUp, dataUp = turtle:inspectUp()
-    if successUp and self:isInterestingBlock(dataUp.name) then
+    if successUp and self.isInterestingBlock[dataUp.name] then
         print("Yläpuolella: " .. (dataUp.name or "tuntematon"))
         self:kaivaSuoni("up")
     end
     -- sitten katso alas
     local successDown, dataDown = turtle:inspectDown()
-    if successDown and self:isInterestingBlock(dataDown.name) then
+    if successDown and self.isInterestingBlock[dataDown.name] then
         print("Alapuolella: " .. (dataDown.name or "tuntematon"))
         self:kaivaSuoni("down")
     end
     -- sitten katso eteen
     local successAhead, dataDown = turtle:inspect()
-    if successAhead and self:isInterestingBlock(dataDown.name) then
+    if successAhead and self.isInterestingBlock[dataDown.name] then
         print("Alapuolella: " .. (dataDown.name or "tuntematon"))
         self:kaivaSuoni("down")
     end
@@ -62,7 +54,7 @@ function SuoniKaivaja:inspectSurroundings()
     for i = 1, 3 do
         self.tracker:turnRight()
         local successSide, dataSide = turtle:inspect()
-        if successSide and self:isInterestingBlock(dataSide.name) then
+        if successSide and self.isInterestingBlock[dataSide.name] then
             print("Sivulla: " .. (dataSide.name or "tuntematon"))
             self:kaivaSuoni("forward")
         end
