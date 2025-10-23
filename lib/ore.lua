@@ -144,24 +144,24 @@ function SuoniKaivaja:_getNeighborPositions()
     return pos
 end
 
-function SuoniKaivaja:quickCheck()
+function SuoniKaivaja:_quickCheck()
     -- check ahead, up, down and mark visited if not interesting
     for _, dir in ipairs({"forward", "up", "down"}) do
         local ok, data
         if dir == "forward" then
-            ok, data = self.tracker.inspect()
+            ok, data = self.tracker:inspect()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("forward")
                 self:_markVisited(nx,ny,nz)
             end
         elseif dir == "up" then
-            ok, data = self.tracker.inspectUp()
+            ok, data = self.tracker:inspectUp()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("up")
                 self:_markVisited(nx,ny,nz)
             end
         elseif dir == "down" then
-            ok, data = self.tracker.inspectDown()
+            ok, data = self.tracker:inspectDown()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("down")
                 self:_markVisited(nx,ny,nz)
@@ -175,11 +175,11 @@ function SuoniKaivaja:_scanAround(cameFrom)
         print("Lopetetaan kaivuu ulkoisesta syystä.")
         return
     end
-    self:quickCheck()
+    self:_quickCheck()
 
     -- ylös
     if cameFrom ~= "up" then
-        local ok, data = self.tracker.inspectUp()
+        local ok, data = self.tracker:inspectUp()
         local nx,ny,nz = self:_neighborPos("up")
         if ok and self.interesting[data.name] then
             print("Ylös: "..data.name)
@@ -195,7 +195,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
 
     -- alas
     if cameFrom ~= "down" then
-        local ok, data = self.tracker.inspectDown()
+        local ok, data = self.tracker:inspectDown()
         local nx,ny,nz = self:_neighborPos("down")
         if ok and self.interesting[data.name] then
             print("Alas: "..data.name)
@@ -214,7 +214,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local oikealle = neighborPositions[2]
     local vasemmalle = neighborPositions[4]
     local startFacing = self.facing
-    local ok, data = self.tracker.inspect()
+    local ok, data = self.tracker:inspect()
     local nx,ny,nz = self:_neighborPos("forward")
     if ok and self.interesting[data.name] then
         print("Eessä: "..data.name)
@@ -233,7 +233,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
         -- neljä seinää
         self:_turnRight()
         for i = 1, 3 do
-            local ok, data = self.tracker.inspect()
+            local ok, data = self.tracker:inspect()
             local nx,ny,nz = self:_neighborPos("forward")
             if ok and self.interesting[data.name] then
                 print("Eessä: "..data.name)
@@ -250,7 +250,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     elseif not oikealle.visited then
         -- käänny oikealle
         self:_turnRight()
-        local ok, data = self.tracker.inspect()
+        local ok, data = self.tracker:inspect()
         local nx,ny,nz = self:_neighborPos("forward")
         if ok and self.interesting[data.name] then
             print("Eessä (oikea): "..data.name)
@@ -265,7 +265,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     elseif not vasemmalle.visited then
         -- käänny vasemmalle
         self:_turnLeft()
-        local ok, data = self.tracker.inspect()
+        local ok, data = self.tracker:inspect()
         local nx,ny,nz = self:_neighborPos("forward")
         if ok and self.interesting[data.name] then
             print("Eessä (vasen): "..data.name)
