@@ -2,7 +2,7 @@
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 local SuoniKaivaja = dofile("lib/ore.lua")
-tracker = Actions.new("miner")
+tracker = Actions.new(utils.getLabel())
 local interestingBlocks = {
     "minecraft:diamond_ore",
     "minecraft:gold_ore",
