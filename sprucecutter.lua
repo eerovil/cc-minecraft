@@ -154,12 +154,38 @@ local etsiMaa = function()
   end
 end
 
+local laitaArkkuun = function()
+  -- arkku pitäisi olla nyt alapuolella
+  -- ota sieltä hiiltä ja saplingeja
+  -- laita kaikki puut arkkuun
+
+  -- inspectaa arkku
+  local success, data = tracker:inspectDown()
+  if success and data.name == "chest" then
+    print("Löydettiin arkku: " .. data.name)
+  else
+    print("Ei arkku löytynyt.")
+  end
+
+  for slot = 1, 16 do
+    local item = turtle.getItemDetail(slot)
+    if item then
+      if string.find(item.name, "log") or string.find(item.name, "planks") then
+        turtle.select(slot)
+        turtle.dropDown()
+        print("Laitettu arkkuun: " .. item.name .. " x" .. item.count)
+      end
+    end
+  end
+end
+
 while true do
   tracker:cycle(function() 
     if not (utils.refuel()) then
       error("Ei riittävästi polttoainetta!")
     end
     etsiMaa()
+    laitaArkkuun()
     suckUpAllAround()
 
     -- liiku eteenpäin 1
