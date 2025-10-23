@@ -18,12 +18,13 @@ local function riittavastiSaplingeja()
       totalSaplings = totalSaplings + item.count
     end
   end
-  return totalSaplings >= 4
+  return totalSaplings >= 8
 end
 
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
   while true do
+    utils.refuel()
     local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
     if success and data.name == LEAVES_BLOCK then
@@ -54,6 +55,7 @@ local function hakkaaAlas()
   tracker:digDown()
   tracker:down()
   while true do
+    utils.refuel()
     local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
     if success and data.name == LEAVES_BLOCK then
@@ -137,9 +139,25 @@ local suckUpAllAround = function()
   end
 end
 
-utils.refuel()
-hakkaaKuusi()
-istutaKuusi()
+while true do
+  tracker.cycle(function() 
+    utils.refuel()
+
+    -- liiku eteenpäin 1
+    tracker:safeForward()
+    ok, data = tracker:inspect()
+    -- onko kasvanut?
+    if (ok and data.name == SPRUCE_LOG_BLOCK) then
+      hakkaaKuusi()
+      istutaKuusi()
+      suckUpAllAround()
+    end
+    -- liiku taaksepäin 1
+    tracker:back()
+    -- odota 5 sekuntia ennen seuraavaa tarkistusta
+    os.sleep(5)
+  end)
+end
 
 -- -- Pääsilmukka
 -- while true do
