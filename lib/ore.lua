@@ -209,11 +209,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
         end
     end
 
-    local neighborPositions = self:_getNeighborPositions()
-    local taakse = neighborPositions[3]
-    local oikealle = neighborPositions[2]
-    local vasemmalle = neighborPositions[4]
-    local startFacing = self.facing
+    -- eteen
     local ok, data = self.tracker:inspect()
     local nx,ny,nz = self:_neighborPos("forward")
     if ok and self.interesting[data.name] then
@@ -226,6 +222,12 @@ function SuoniKaivaja:_scanAround(cameFrom)
         -- ei mielenkiintoinen, mutta merkitään käydyksi
         self:_markVisited(nx,ny,nz)
     end
+
+    local neighborPositions = self:_getNeighborPositions()
+    local taakse = neighborPositions[3]
+    local oikealle = neighborPositions[2]
+    local vasemmalle = neighborPositions[4]
+    local startFacing = self.facing
     print("Naapurit: taakse.visited="..tostring(taakse.visited)..
           ", oikealle.visited="..tostring(oikealle.visited)..
           ", vasemmalle.visited="..tostring(vasemmalle.visited))
