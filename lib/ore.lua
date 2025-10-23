@@ -175,7 +175,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
         print("Lopetetaan kaivuu ulkoisesta syystä.")
         return
     end
-    self.quickCheck()
+    self:quickCheck()
 
     -- ylös
     if cameFrom ~= "up" then
