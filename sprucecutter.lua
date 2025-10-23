@@ -38,6 +38,10 @@ local function hakkaaYlos()
       tracker:up()
     else
       print("yläpuolella: " .. (data and data.name or "ei mitään"))
+      tracker:digUp()
+      tracker:up()
+      tracker:digUp()
+      tracker:up()
       break
     end
   end
@@ -45,6 +49,10 @@ end
 
 -- Hakkaa alas kunnes ei enää leaves tai log alapuolella
 local function hakkaaAlas()
+  tracker:digDown()
+  tracker:down()
+  tracker:digDown()
+  tracker:down()
   while true do
     local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
