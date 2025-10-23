@@ -166,6 +166,7 @@ function Actions:runStep(fn, opts)
     self:save()
 
     local ok, data = pcall(fn)
+    print("[actions] step " .. step .. " completed, ok=" .. tostring(ok) .. ", data=" .. tostring(data))
     if not ok then
         self:reconcilePending()
         if self.state.last_step >= step then
