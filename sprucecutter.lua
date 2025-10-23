@@ -140,7 +140,7 @@ local suckUpAllAround = function()
 end
 
 while true do
-  tracker.cycle(function() 
+  tracker:cycle(function() 
     utils.refuel()
 
     -- liiku eteenpäin 1
