@@ -35,6 +35,14 @@ end
 -- Hakkaa alas kunnes ei enää leaves tai log alapuolella
 local function hakkaaAlas()
   while true do
+    local success, data = tracker:inspect()
+    -- jos edessä on lehti, hakkaa se pois
+    if success and data.name == LEAVES_BLOCK then
+      -- hakkaa suoni lehtiä
+      local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK})
+      suoniKaivaja:inspectSurroundings()
+    end
+
     local success, data = tracker:inspectDown()
     if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
       tracker:digDown()
