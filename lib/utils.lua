@@ -25,13 +25,15 @@ function M.refuel()
                     print("Tankattu " .. itemCount .. " kappaletta " .. itemDetail.name)
                     if turtle.getFuelLevel() >= 1000 then
                         print("Polttoaine riittää nyt.")
-                        return
+                        return true
                     end
                 end
             end
         end
         print("Ei löytynyt polttoainetta tankattavaksi.")
+        return false
     end
+    return true
 end
 
 

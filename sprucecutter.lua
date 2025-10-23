@@ -143,7 +143,9 @@ end
 
 while true do
   tracker:cycle(function() 
-    utils.refuel()
+    if not (utils.refuel()) then
+      error("Ei riittävästi polttoainetta!")
+    end
     suckUpAllAround()
 
     -- liiku eteenpäin 1
