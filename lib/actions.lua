@@ -338,10 +338,7 @@ function Actions:completeCycle()
 end
 
 function Actions:cycle(fn)
-    local ok, err = pcall(fn)
-    if not ok then
-        error(err)
-    end
+    fn()
     self:completeCycle()
 end
 
