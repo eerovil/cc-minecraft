@@ -144,6 +144,7 @@ end
 while true do
   tracker:cycle(function() 
     utils.refuel()
+    suckUpAllAround()
 
     -- liiku eteenpäin 1
     tracker:safeForward()
@@ -152,8 +153,8 @@ while true do
     if (ok and data.name == SPRUCE_LOG_BLOCK) then
       hakkaaKuusi()
       istutaKuusi()
-      suckUpAllAround()
     end
+    suckUpAllAround()
     -- liiku taaksepäin 1
     tracker:back()
     -- odota 2 sekuntia ennen seuraavaa tarkistusta
