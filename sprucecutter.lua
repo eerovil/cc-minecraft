@@ -154,8 +154,11 @@ while true do
     end
     -- liiku taaksepäin 1
     tracker:back()
-    -- odota 30 sekuntia ennen seuraavaa tarkistusta
-    os.sleep(30)
+    -- odota 10 sekuntia ennen seuraavaa tarkistusta
+    os.sleep(10)
+    -- käänny 180 astetta
+    tracker:turnRight()
+    tracker:turnRight()
   end)
 end
 
