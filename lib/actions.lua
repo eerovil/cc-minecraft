@@ -133,6 +133,17 @@ function Actions:forward(n)
   return self:moveForward(n)
 end
 
+function Actions:moveBack(n)
+  n=n or 1
+  return self:runStep(function()
+    for i=1,n do assert(turtle.back(),"blocked") end
+  end,{min_fuel=n})
+end
+
+function Actions:back(n)
+  return self:moveBack(n)
+end
+
 function Actions:safeForward(n)
   return self:runStep(function()
     n=n or 1
