@@ -152,7 +152,7 @@ function Actions:runStep(fn, opts)
             local ok, value = pcall(textutils.unserialize, res.data)
             return res.ok, ok and value or res.data
         else
-            return true, nil
+            return true, {name = "unknown"}
         end
     end
 
@@ -168,12 +168,9 @@ function Actions:runStep(fn, opts)
     local ok, data = fn()
     -- Tallennetaan tulos vain jos pyydetty
     if opts.store_result then
-        local encoded
-        local ok_s, enc = pcall(textutils.serialize, {name = data.name})
-        encoded = ok_s and enc or tostring(data)
         self.state.results[tostring(step)] = {
             ok = ok,
-            data = encoded
+            data = {name = data.name}
         }
     end
 
