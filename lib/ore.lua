@@ -69,3 +69,5 @@ function SuoniKaivaja:inspectSurroundings()
     print("Ei mielenkiintoista ympärillä.")
     return nil
 end
+
+return SuoniKaivaja
