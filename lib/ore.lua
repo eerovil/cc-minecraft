@@ -190,6 +190,9 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local taakse = neighborPositions[2]
     local oikealle = neighborPositions[1]
     local vasemmalle = neighborPositions[3]
+    print("Naapurit: taakse.visited="..tostring(taakse.visited)..
+          ", oikealle.visited="..tostring(oikealle.visited)..
+          ", vasemmalle.visited="..tostring(vasemmalle.visited))
     if (not taakse.visited or (not oikealle.visited and not vasemmalle.visited)) then
         -- neljä seinää
         local startFacing = self.facing
@@ -227,8 +230,6 @@ function SuoniKaivaja:_scanAround(cameFrom)
             -- ei mielenkiintoinen, mutta merkitään käydyksi
             self:_markVisited(nx,ny,nz)
         end
-        -- palauta orientaatio
-        self:_turnLeft()
     elseif not vasemmalle.visited then
         -- käänny vasemmalle
         self:_turnLeft()
@@ -246,8 +247,6 @@ function SuoniKaivaja:_scanAround(cameFrom)
             -- ei mielenkiintoinen, mutta merkitään käydyksi
             self:_markVisited(nx,ny,nz)
         end
-        -- palauta orientaatio
-        self:_turnRight()
     end
 
     -- palauta alkuorientaatio
