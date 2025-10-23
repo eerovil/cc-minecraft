@@ -187,9 +187,9 @@ function SuoniKaivaja:_scanAround(cameFrom)
     end
 
     local neighborPositions = self:_getNeighborPositions()
-    local taakse = neighborPositions[2]
-    local oikealle = neighborPositions[1]
-    local vasemmalle = neighborPositions[3]
+    local taakse = neighborPositions[3]
+    local oikealle = neighborPositions[2]
+    local vasemmalle = neighborPositions[4]
     local startFacing = self.facing
     print("Naapurit: taakse.visited="..tostring(taakse.visited)..
           ", oikealle.visited="..tostring(oikealle.visited)..
