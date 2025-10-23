@@ -3,7 +3,8 @@
 local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 local SuoniKaivaja = dofile("lib/ore.lua")
-tracker = Actions.new("sprucecutter")
+
+tracker = Actions.new(utils.getLabel())
 
 local SPRUCE_LOG_BLOCK = "minecraft:spruce_log"
 local SPRUCE_SAPLING_ITEM = "minecraft:spruce_sapling"

@@ -99,4 +99,15 @@ function M.saveState(state)
     end
 end
 
+function M.getLabel()
+    local label = os.getComputerLabel()
+    if label then
+        local role = label:match("^([^_]+)")
+        if not role or role == "" then
+            print("Ei voitu päätellä roolia nimestä.")
+            return
+        end
+    end
+end
+
 return M
