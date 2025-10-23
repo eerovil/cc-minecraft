@@ -141,7 +141,7 @@ function Actions:runStep(fn, opts)
     if self.state.pending and self.state.pending.step == step then
         self:reconcilePending()
         if self.state.last_step >= step then
-            return "resumed-completed"
+            return true, nil
         end
     end
 
@@ -173,7 +173,7 @@ function Actions:runStep(fn, opts)
             local res = self.state.results[step]
             if res then
                 local ok2, value = pcall(textutils.unserialize, res.data)
-                return true, ok2 and value or res.data
+                return ok2, value
             end
         end
         error("Step #" .. step .. " failed: " .. tostring(data))
@@ -348,6 +348,7 @@ function Actions:inspect()
         min_fuel = 0,
         store_result = true
     })
+    print("[actions] inspect result: " .. textutils.serialize(result))
     return ok, result
 end
 
