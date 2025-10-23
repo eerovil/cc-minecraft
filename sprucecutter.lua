@@ -9,6 +9,9 @@ tracker = Actions.new(utils.getLabel())
 local SPRUCE_LOG_BLOCK = "minecraft:spruce_log"
 local SPRUCE_SAPLING_ITEM = "minecraft:spruce_sapling"
 local LEAVES_BLOCK = "minecraft:spruce_leaves"
+local GROUND_BLOCK = "minecraft:podzol"
+local DIRT_BLOCK = "minecraft:dirt"
+local GRASS_BLOCK = "minecraft:grass_block"
 
 local function riittavastiSaplingeja()
   local totalSaplings = 0
@@ -65,12 +68,12 @@ local function hakkaaAlas()
     end
 
     local success, data = tracker:inspectDown()
-    if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
+    if success and (data.name == GROUND_BLOCK or data.name == DIRT_BLOCK or data.name == GRASS_BLOCK) then
+      print("Löytyi maa: " .. data.name)
+      break
+    else
       tracker:digDown()
       tracker:safeDown()
-    else
-      print("alapuolella: " .. (data and data.name or "ei mitään"))
-      break
     end
   end
 end
@@ -170,7 +173,7 @@ local laitaArkkuun = function()
   for slot = 1, 16 do
     local item = turtle.getItemDetail(slot)
     if item then
-      if string.find(item.name, "log") or string.find(item.name, "planks") then
+      if string.find(item.name, "log") or string.find(item.name, "planks") or string.find(item.name, "stick") then
         turtle.select(slot)
         turtle.dropDown()
         print("Laitettu arkkuun: " .. item.name .. " x" .. item.count)
