@@ -150,7 +150,7 @@ function Actions:runStep(fn, opts)
         local res = self.state.results[step]
         if res then
             local ok, value = pcall(textutils.unserialize, res.data)
-            return true, ok and value or res.data
+            return res.ok, ok and value or res.data
         else
             return true, nil
         end
@@ -166,25 +166,13 @@ function Actions:runStep(fn, opts)
     self:save()
 
     local ok, data = fn()
-    if not ok then
-        self:reconcilePending()
-        if self.state.last_step >= step then
-            -- Jos askel ehti silti mennä läpi, palauta viimeisin tallennettu tulos
-            local res = self.state.results[step]
-            if res then
-                local ok2, value = pcall(textutils.unserialize, res.data)
-                return true, value or res.data
-            end
-        end
-        error("Step #" .. step .. " failed: " .. tostring(data))
-    end
-
     -- Tallennetaan tulos vain jos pyydetty
     if opts.store_result then
         local encoded
         local ok_s, enc = pcall(textutils.serialize, data)
         encoded = ok_s and enc or tostring(data)
         self.state.results[step] = {
+            ok = ok,
             data = encoded
         }
     end
