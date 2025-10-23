@@ -4,16 +4,18 @@ SuoniKaivaja.__index = SuoniKaivaja
 function SuoniKaivaja.new(tracker, interestingBlocks)
     local self = setmetatable({}, SuoniKaivaja)
     self.tracker = tracker
-    self.interestingBlocks = interestingBlocks
+    -- tee taulukko mielenkiintoisista blokeista
+    self.isInterestingBlock = {}
+    for _, name in ipairs(interestingBlocks) do
+        self.isInterestingBlock[name] = true
+    end
     return self
 end
 
 -- funktio: kerro onko blokki mielenkiintoinen
 function SuoniKaivaja:isInterestingBlock(blockName)
-    for _, name in ipairs(SuoniKaivaja.interestingBlocks) do
-        if blockName == name then
-            return true
-        end
+    if self.isInterestingBlock[blockName] then
+        return true
     end
     return false
 end
