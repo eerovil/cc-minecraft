@@ -147,7 +147,7 @@ function Actions:runStep(fn, opts)
 
     -- Jos vaihe on jo valmis, palauta edellinen tulos
     if self.state.last_step >= step then
-        local res = self.state.results[step]
+        local res = self.state.results[tostring(step)]
         if res then
             local ok, value = pcall(textutils.unserialize, res.data)
             return res.ok, ok and value or res.data
@@ -171,7 +171,7 @@ function Actions:runStep(fn, opts)
         local encoded
         local ok_s, enc = pcall(textutils.serialize, data)
         encoded = ok_s and enc or tostring(data)
-        self.state.results[step] = {
+        self.state.results[tostring(step)] = {
             ok = ok,
             data = encoded
         }
