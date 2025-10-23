@@ -169,7 +169,7 @@ function Actions:runStep(fn, opts)
     -- Tallennetaan tulos vain jos pyydetty
     if opts.store_result then
         local encoded
-        local ok_s, enc = pcall(textutils.serialize, data)
+        local ok_s, enc = pcall(textutils.serialize, {name = data.name})
         encoded = ok_s and enc or tostring(data)
         self.state.results[tostring(step)] = {
             ok = ok,
