@@ -136,7 +136,7 @@ function Actions:runStep(fn, opts)
     local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
     local step = localStep
-    print("[actions] step " .. step .. ", state: " .. jsonEncode(self.state))
+    -- print("[actions] step " .. step .. ", state: " .. jsonEncode(self.state))
 
     if self.state.pending and self.state.pending.step == step then
         self:reconcilePending()

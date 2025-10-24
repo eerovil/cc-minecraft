@@ -42,6 +42,7 @@ local laitaSoihtuTaakse = function()
         --- lopeta ohjelma
         return false
     end
+    return false
 end
 
 function asetaBlokkiAlas()
