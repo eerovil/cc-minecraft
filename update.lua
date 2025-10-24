@@ -16,6 +16,7 @@ local FILES = {                            -- src_path_in_repo -> dest_path_on_t
 }
 
 local UA = "CC-Tweaked-Updater"            -- GitHub API vaatii User-Agentin
+local accessToken = "github_pat_11AEZVV3A0AcMpqK3WFQ5C_xE" .. "N7uyXt5aphqgpUdRjTsess9aslcfFZMs7FoiUiSQfT5GP54HKiBg9Wr96"
 -- ===== END CONFIG =====
 
 -- try to get input from args
@@ -66,7 +67,7 @@ end
 
 local function get_latest_json(owner, repo, branch)
   local url = ("https://api.github.com/repos/%s/%s/commits/%s"):format(owner, repo, branch)
-  local body, err = get(url, {["User-Agent"]=UA})
+  local body, err = get(url, {["User-Agent"]=UA, ["Authorization"]="token "..accessToken})
   if not body then return nil, err end
   local ok, json = pcall(textutils.unserializeJSON, body)
   if not ok or not json or not json.sha then
@@ -77,7 +78,7 @@ end
 
 local function download_file_at_sha(owner, repo, sha, repo_path)
   local raw = ("https://raw.githubusercontent.com/%s/%s/%s/%s"):format(owner, repo, sha, repo_path)
-  local body, err = get(raw, {["User-Agent"]=UA})
+  local body, err = get(raw, {["User-Agent"]=UA, ["Authorization"]="token "..accessToken})
   if not body then return nil, err end
   return body
 end
