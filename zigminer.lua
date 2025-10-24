@@ -21,6 +21,16 @@ local blockIsInteresting = {
     ["minecraft:redstone_ore"] = true,
     ["minecraft:lapis_ore"] = true,
 }
+local badItemNames = {
+    "gravel",
+    "dirt",
+    "flint",
+    "copper",
+    "diorite",
+    "andesite",
+    "stone",
+}
+
 
 
 function pudotaJotainJosReppuFull()
@@ -83,16 +93,6 @@ local nopeaTsekkaus = function()
     end
     return false
 end
-
-local badItemNames = {
-    "gravel",
-    "dirt",
-    "flint",
-    "copper",
-    "diorite",
-    "andesite",
-    "stone",
-}
 
 
 function meneTakaisin()
