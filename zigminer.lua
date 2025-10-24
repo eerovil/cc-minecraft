@@ -108,6 +108,7 @@ end
 local SPIRAL_SIDE = 40
 
 local currPos = {x=0, y=0, z=0}
+local currLen = SPIRAL_SIDE
 local facing = "north"
 
 local turnRightMap = {
@@ -120,6 +121,7 @@ local turnRightMap = {
 local function turnRight()
     tracker:turnRight()
     facing = turnRightMap[facing]
+    utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
 end
 
 
@@ -140,6 +142,7 @@ local function kaivaNBlokkia(n)
         elseif facing == "west" then
             currPos.z = currPos.z - 1
         end
+        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
     end
     if (nopeaTsekkaus({"forward"})) then
         kaivaSuoni()
@@ -182,9 +185,10 @@ end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 local savedState = utils.loadState()
-local currLen = SPIRAL_SIDE
 if savedState then
     currLen = savedState.currLen or SPIRAL_SIDE
+    currPos = savedState.currPos or {x=0, y=0, z=0}
+    facing = savedState.facing or "north"
 end
 local stop = false
 while true do
@@ -206,7 +210,7 @@ while true do
         turnRight()
         pudotaJotainJosReppuFull()
         currLen = currLen - 2
-        utils.saveState({currLen=currLen})
+        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
         if currLen <= 0 then
             print("Kaivettu kaikki kerrokset")
             palaaAlkuun()
