@@ -189,6 +189,7 @@ end
 local stop = false
 while true do
     if stop then
+        utils.saveState({})
         break
     end
     tracker:cycle(function()
@@ -216,3 +217,4 @@ while true do
 end
 
 shell.run("resetstate.lua")
+utils.saveState({})
