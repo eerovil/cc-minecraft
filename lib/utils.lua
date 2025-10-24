@@ -95,7 +95,6 @@ function M.saveState(state)
         local content = textutils.serialize(state)
         file.write(content)
         file.close()
-        print("Tallennettu tila tiedostoon " .. filename)
     else
         print("Ei voitu tallentaa tilaa tiedostoon " .. filename)
     end

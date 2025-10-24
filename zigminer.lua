@@ -121,7 +121,6 @@ local turnRightMap = {
 local function turnRight()
     tracker:turnRight()
     facing = turnRightMap[facing]
-    utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
 end
 
 
@@ -218,13 +217,13 @@ while true do
         turnRight()
         pudotaJotainJosReppuFull()
         currLen = currLen - 2
-        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
         if currLen <= 0 then
             print("Kaivettu kaikki kerrokset")
             palaaAlkuun()
             stop = true
             return
         end
+        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
     end)
 end
 
