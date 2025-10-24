@@ -28,60 +28,17 @@ function SuoniKaivaja.new(tracker, interestingBlocks, endMiningCallback)
     local self = setmetatable({}, SuoniKaivaja)
     self.tracker = tracker
     self.interesting = makeSet(interestingBlocks)
-    self.pos = {x=0, y=0, z=0}
-    self.facing = "north"
     self.visited = { [key(0,0,0)] = true }
     self.endMiningCallback = endMiningCallback
     return self
 end
 
--- --- orientaatio & liike seuraaminen ---
-function SuoniKaivaja:_turnRight()
-    self.tracker:turnRight()
-    self.facing = RIGHT[self.facing]
-end
-
-function SuoniKaivaja:_turnLeft()
-    self.tracker:turnLeft()
-    self.facing = LEFT[self.facing]
-end
-
-function SuoniKaivaja:_moveForward()
-    if self.tracker:safeForward() then
-        self.pos.x = self.pos.x + DX[self.facing]
-        self.pos.z = self.pos.z + DZ[self.facing]
-        return true
-    end
-end
-
-function SuoniKaivaja:_moveBack()
-    if self.tracker:safeBack() then
-        self.pos.x = self.pos.x - DX[self.facing]
-        self.pos.z = self.pos.z - DZ[self.facing]
-        return true
-    end
-end
-
-function SuoniKaivaja:_moveUp()
-    if self.tracker:safeUp() then
-        self.pos.y = self.pos.y + 1
-        return true
-    end
-end
-
-function SuoniKaivaja:_moveDown()
-    if self.tracker:safeDown() then
-        self.pos.y = self.pos.y - 1
-        return true
-    end
-end
-
 -- --- apu ---
 function SuoniKaivaja:_neighborPos(dir)
-    local x,y,z = self.pos.x, self.pos.y, self.pos.z
-    if dir == "up" then return x, y+1, z end
-    if dir == "down" then return x, y-1, z end
-    return x + DX[self.facing], y, z + DZ[self.facing]
+    local currPos = self.tracker:currPos()
+    if dir == "up" then return currPos.x, currPos.y+1, currPos.z end
+    if dir == "down" then return currPos.x, currPos.y-1, currPos.z end
+    return currPos.x + DX[self.tracker:facingName()], currPos.y, currPos.z + DZ[self.tracker:facingName()]
 end
 
 function SuoniKaivaja:_markVisited(x,y,z)
@@ -96,48 +53,40 @@ end
 function SuoniKaivaja:_digAndMove(dir)
     if dir == "up" then
         self.tracker:digUp()
-        if not self:_moveUp() then return false end
+        if not tracker:safeUp() then return false end
     elseif dir == "down" then
         self.tracker:digDown()
-        if not self:_moveDown() then return false end
+        if not tracker:safeDown() then return false end
     elseif dir == "forward" then
         self.tracker:dig()
-        if not self:_moveForward() then return false end
+        if not tracker:safeForward() then return false end
     end
-    local x,y,z = self.pos.x, self.pos.y, self.pos.z
+    local currPos = self.tracker:currPos()
+    local x,y,z = currPos.x, currPos.y, currPos.z
     self:_markVisited(x,y,z)
     return true
 end
 
 function SuoniKaivaja:_backtrack(dir)
-    if dir == "up" then self:_moveDown()
-    elseif dir == "down" then self:_moveUp()
-    elseif dir == "forward" then self:_moveBack()
+    if dir == "up" then tracker:safeDown()
+    elseif dir == "down" then tracker:safeUp()
+    elseif dir == "forward" then tracker:safeBack()
     end
 end
 
 function SuoniKaivaja:_getNeighborPositions()
-    local faces = {"north","east","south","west"}
-    local DX = {north=0, east=1, south=0, west=-1}
-    local DZ = {north=-1, east=0, south=1, west=0}
-    local idx = {north=1, east=2, south=3, west=4}
-
+    local facing = self.tracker:facingName()
     local pos = {}
-    local fi = idx[self.facing]
+    local currPos = self.tracker:currPos()
     for r=0,3 do
-        local f = faces[((fi-1 + r)%4)+1]
         table.insert(pos, {
-            x = self.pos.x + DX[f],
-            y = self.pos.y,
-            z = self.pos.z + DZ[f],
-            dx = DX[f],
+            dx = DX[facing],
             dy = 0,
-            dz = DZ[f],
-            dir = f,   -- halutessasi tiedoksi mikä suunta tämä on
+            dz = DZ[facing],
             visited = self:_isVisited(
-                self.pos.x + DX[f],
-                self.pos.y,
-                self.pos.z + DZ[f]
+                currPos.x + DX[facing],
+                currPos.y,
+                currPos.z + DZ[facing]
             )
         })
     end
@@ -228,7 +177,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     local taakse = neighborPositions[3]
     local oikealle = neighborPositions[2]
     local vasemmalle = neighborPositions[4]
-    local startFacing = self.facing
+    local startFacing = self.tracker:facingName()
 
     -- jos interesting on tyhjä, lopeta
     if next(self.interesting) == nil then
@@ -289,7 +238,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     end
 
     -- palauta alkuorientaatio
-    while self.facing ~= startFacing do self:_turnRight() end
+    while self.tracker:facingName() ~= startFacing do self:_turnRight() end
 end
 
 -- julkinen pääfunktio
