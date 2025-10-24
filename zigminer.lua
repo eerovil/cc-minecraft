@@ -137,34 +137,7 @@ local function kaivaNBlokkia(n)
 end
 
 function palaaAlkuun()
-    -- käänny kohti north
-    if tracker:currPos().x > 0 then
-        -- käänny etelään
-        while tracker:facingName() ~= "south" do
-            tracker:turnRight()
-        end
-        kaivaNBlokkia(tracker:currPos().x)
-    elseif tracker:currPos().x < 0 then
-        -- käänny pohjoiseen
-        while tracker:facingName() ~= "north" do
-            tracker:turnRight()
-        end
-        kaivaNBlokkia(-tracker:currPos().x)
-    end
-    if tracker:currPos().z > 0 then
-        -- käänny länteen
-        while tracker:facingName() ~= "west" do
-            tracker:turnRight()
-        end
-        kaivaNBlokkia(tracker:currPos().z)
-    elseif tracker:currPos().z < 0 then
-        -- käänny itään
-        while tracker:facingName() ~= "east" do
-            tracker:turnRight()
-        end
-        kaivaNBlokkia(-tracker:currPos().z)
-    end
-    -- käänny pohjoiseen
+    tracker:moveTo(0, 0, 0)
     while tracker:facingName() ~= "north" do
         tracker:turnRight()
     end

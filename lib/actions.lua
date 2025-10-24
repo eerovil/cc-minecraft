@@ -139,7 +139,7 @@ function Actions:currPos()
     return self.posState.currPos
 end
 
-function Actions.moveTo(x, y, z)
+function Actions:moveTo(x, y, z)
     local pos = self.posState.currPos
     local startFacing = self:facingName()
     while pos.y < y do
