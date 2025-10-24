@@ -78,18 +78,14 @@ while true do
         -- spiral
         for loop = 1, SPIRAL_LOOPS do
             for side = 1, 4 do
-                for step = 1, loop do
+                for step = 1, loop * 2 do
                     nopeaTsekkaus()
                     tracker:safeForward()
                 end
                 tracker:turnRight()
             end
         end
-        
-        if not (utils.refuel()) then
-            print("Ei polttoainetta, palataan takaisin.")
-            stop = true
-            return
-        end
+        stop = true
+        return
     end)
 end
