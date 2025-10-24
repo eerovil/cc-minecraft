@@ -64,16 +64,18 @@ local badItemNames = {
 }
 
 function pudotaJotainJosReppuFull()
-    local totalItems = 0
+    local anyEmpty = false
     local itemsBySlot = {}
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
         if item then
-            totalItems = totalItems + item.count
             itemsBySlot[slot] = item
+        else
+            anyEmpty = true
+            break
         end
     end
-    if totalItems >= 16 * 64 then
+    if not anyEmpty then
         print("Reppu täynnä, pudotetaan jotain...")
         -- pudota jotain ylimääräistä, esim. kiviblokkeja
         for slot, item in pairs(itemsBySlot) do
