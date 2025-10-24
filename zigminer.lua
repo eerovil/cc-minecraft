@@ -119,10 +119,9 @@ local turnRightMap = {
 }
 
 local function turnRight()
-    tracker:turnRight(function()
-        facing = turnRightMap[facing]
-        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
-    end)
+    tracker:turnRight()
+    facing = turnRightMap[facing]
+    utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
 end
 
 
@@ -133,18 +132,17 @@ local function kaivaNBlokkia(n)
         end
         tracker:dig()
         -- tracker:digUp()
-        tracker:safeForward(function()
-            if facing == "north" then
-                currPos.x = currPos.x + 1
-            elseif facing == "east" then
-                currPos.z = currPos.z + 1
-            elseif facing == "south" then
-                currPos.x = currPos.x - 1
-            elseif facing == "west" then
-                currPos.z = currPos.z - 1
-            end
-            utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
-        end)
+        tracker:safeForward()
+        if facing == "north" then
+            currPos.x = currPos.x + 1
+        elseif facing == "east" then
+            currPos.z = currPos.z + 1
+        elseif facing == "south" then
+            currPos.x = currPos.x - 1
+        elseif facing == "west" then
+            currPos.z = currPos.z - 1
+        end
+        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
     end
     if (nopeaTsekkaus({"forward"})) then
         kaivaSuoni()

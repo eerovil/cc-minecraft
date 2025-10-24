@@ -228,14 +228,11 @@ function Actions:safeBack()
     end)
 end
 
-function Actions:safeForward(callback)
+function Actions:safeForward()
     return self:runStep(function()
         while true do
             local ok, reason = turtle.forward()
             if ok then
-                if callback then
-                    callback()
-                end
               return ok, reason
             end
             -- jos bensa loppu, heitetään error
@@ -311,13 +308,9 @@ function Actions:turnLeft()
     end)
 end
 
-function Actions:turnRight(callback)
+function Actions:turnRight()
     return self:runStep(function()
-        local ret = turtle.turnRight()
-        if callback then
-            callback()
-        end
-        return ret
+        return turtle.turnRight()
     end)
 end
 
