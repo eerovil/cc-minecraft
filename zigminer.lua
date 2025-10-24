@@ -68,34 +68,90 @@ end
 
 local SPIRAL_SIDE = 10
 
+local currPos = {x=0, y=0, z=0}
+local facing = "north"
+
+local turnRightMap = {
+    north = "east",
+    east = "south",
+    south = "west",
+    west = "north",
+}
+
+local function turnRight()
+    tracker:turnRight()
+    facing = turnRightMap[facing]
+end
+
+
 local function kaivaNBlokkia(n)
     for i = 1, n do
         nopeaTsekkaus()
         tracker:dig()
         tracker:safeForward()
+        if facing == "north" then
+            currPos.x = currPos.x + 1
+        elseif facing == "east" then
+            currPos.z = currPos.z + 1
+        elseif facing == "south" then
+            currPos.x = currPos.x - 1
+        elseif facing == "west" then
+            currPos.z = currPos.z - 1
+        end
+    end
+end
+
+function palaaAlkuun()
+    -- käänny kohti north
+    if currPos.x > 0 then
+        -- käänny etelään
+        while facing ~= "south" do
+            turnRight()
+        end
+        kaivaNBlokkia(currPos.x)
+    elseif currPos.x < 0 then
+        -- käänny pohjoiseen
+        while facing ~= "north" do
+            turnRight()
+        end
+        kaivaNBlokkia(-currPos.x)
+    end
+    if currPos.z > 0 then
+        -- käänny länteen
+        while facing ~= "west" do
+            turnRight()
+        end
+        kaivaNBlokkia(currPos.z)
+    elseif currPos.z < 0 then
+        -- käänny itään
+        while facing ~= "east" do
+            turnRight()
+        end
+        kaivaNBlokkia(-currPos.z)
     end
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 local currLen = SPIRAL_SIDE
 kaivaNBlokkia(currLen)
-tracker:turnRight()
+turnRight()
 while true do
     if not (utils.refuel()) then
         print("Ei polttoainetta, palataan takaisin.")
-        meneTakaisin()
+        palaaAlkuun()
         stop = true
         return
     end
     nopeaTsekkaus()
     kaivaNBlokkia(currLen)
-    tracker:turnRight()
+    turnRight()
     nopeaTsekkaus()
     kaivaNBlokkia(currLen)
-    tracker:turnRight()
+    turnRight()
     currLen = currLen - 2
     if currLen <= 0 then
         print("Kaivettu kaikki kerrokset")
+        palaaAlkuun()
         break
     end
 end
