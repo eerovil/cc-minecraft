@@ -36,10 +36,11 @@ local laitaSoihtuTaakse = function()
         turtle.place()
         tracker:turnAround()
         print("Soihtu asetettu taakse.")
+        return true
     else
         print("Ei soihtua repussa!")
         --- lopeta ohjelma
-        error("Ei soihtua repussa!") 
+        return false
     end
 end
 
