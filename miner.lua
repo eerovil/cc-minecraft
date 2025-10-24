@@ -78,6 +78,11 @@ end
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 while true do
     tracker:cycle(function()
+        if not (laitaSoihtuTaakse()) then
+            print("Ei voi laittaa soihtua taakse, palataan takaisin.")
+            meneTakaisin()
+            return
+        end
         -- kaiva 3 kertaa
         for i = 1, 3 do
             asetaBlokkiAlas()
@@ -113,11 +118,6 @@ while true do
         kaiva(false)
         asetaBlokkiAlas()
         tracker:safeForward()
-        if not (laitaSoihtuTaakse()) then
-            print("Ei voi laittaa soihtua taakse, palataan takaisin.")
-            meneTakaisin()
-            return
-        end
         if not (utils.refuel()) then
             print("Ei polttoainetta, palataan takaisin.")
             meneTakaisin()
