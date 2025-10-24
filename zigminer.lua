@@ -66,22 +66,21 @@ local badItemNames = {
 }
 
 function pudotaJotainJosReppuFull()
-    local anyEmpty = false
+    local emptySlots = 0
     local itemsBySlot = {}
     for slot = 1, 16 do
         local item = turtle.getItemDetail(slot)
         if item then
             itemsBySlot[slot] = item
         else
-            anyEmpty = true
-            break
+            emptySlots = emptySlots + 1
         end
     end
-    if not anyEmpty then
+    if emptySlots < 2 then
         print("Reppu täynnä, pudotetaan jotain...")
         -- pudota jotain ylimääräistä, esim. kiviblokkeja
-        for slot, item in pairs(itemsBySlot) do
-            for _, badName in ipairs(badItemNames) do
+        for _, badName in ipairs(badItemNames) do
+            for slot, item in pairs(itemsBySlot) do
                 if string.find(item.name, badName) then
                     turtle.select(slot)
                     turtle.dropDown(item.count)
@@ -190,15 +189,16 @@ while true do
     end
     kaivaNBlokkia(currLen)
     turnRight()
+    pudotaJotainJosReppuFull()
     kaivaNBlokkia(currLen)
     turnRight()
+    pudotaJotainJosReppuFull()
     currLen = currLen - 2
     if currLen <= 0 then
         print("Kaivettu kaikki kerrokset")
         palaaAlkuun()
         break
     end
-    pudotaJotainJosReppuFull()
 end
 
 shell.run("resetstate.lua")
