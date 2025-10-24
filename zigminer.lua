@@ -105,7 +105,7 @@ function meneTakaisin()
     end
 end
 
-local SPIRAL_SIDE = 40
+local SPIRAL_SIDE = 10
 
 local currPos = {x=0, y=0, z=0}
 local currLen = SPIRAL_SIDE
