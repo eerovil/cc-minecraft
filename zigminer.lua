@@ -181,28 +181,38 @@ function palaaAlkuun()
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
+local savedState = utils.loadState()
 local currLen = SPIRAL_SIDE
-kaivaNBlokkia(currLen)
-turnRight()
+if savedState then
+    currLen = savedState.currLen or SPIRAL_SIDE
+end
+local stop = false
 while true do
-    if not (utils.refuel()) then
-        print("Ei polttoainetta, palataan takaisin.")
-        palaaAlkuun()
-        stop = true
-        return
-    end
-    kaivaNBlokkia(currLen)
-    turnRight()
-    pudotaJotainJosReppuFull()
-    kaivaNBlokkia(currLen)
-    turnRight()
-    pudotaJotainJosReppuFull()
-    currLen = currLen - 2
-    if currLen <= 0 then
-        print("Kaivettu kaikki kerrokset")
-        palaaAlkuun()
+    if stop then
         break
     end
+    tracker:cycle(function()
+        if not (utils.refuel()) then
+            print("Ei polttoainetta, palataan takaisin.")
+            palaaAlkuun()
+            stop = true
+            return
+        end
+        kaivaNBlokkia(currLen)
+        turnRight()
+        pudotaJotainJosReppuFull()
+        kaivaNBlokkia(currLen)
+        turnRight()
+        pudotaJotainJosReppuFull()
+        currLen = currLen - 2
+        utils.saveState({currLen=currLen})
+        if currLen <= 0 then
+            print("Kaivettu kaikki kerrokset")
+            palaaAlkuun()
+            stop = true
+            return
+        end
+    end)
 end
 
 shell.run("resetstate.lua")
