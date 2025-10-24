@@ -53,13 +53,13 @@ end
 function SuoniKaivaja:_digAndMove(dir)
     if dir == "up" then
         self.tracker:digUp()
-        if not tracker:safeUp() then return false end
+        if not self.tracker:safeUp() then return false end
     elseif dir == "down" then
         self.tracker:digDown()
-        if not tracker:safeDown() then return false end
+        if not self.tracker:safeDown() then return false end
     elseif dir == "forward" then
         self.tracker:dig()
-        if not tracker:safeForward() then return false end
+        if not self.tracker:safeForward() then return false end
     end
     local currPos = self.tracker:currPos()
     local x,y,z = currPos.x, currPos.y, currPos.z
@@ -68,9 +68,9 @@ function SuoniKaivaja:_digAndMove(dir)
 end
 
 function SuoniKaivaja:_backtrack(dir)
-    if dir == "up" then tracker:safeDown()
-    elseif dir == "down" then tracker:safeUp()
-    elseif dir == "forward" then tracker:safeBack()
+    if dir == "up" then self.tracker:safeDown()
+    elseif dir == "down" then self.tracker:safeUp()
+    elseif dir == "forward" then self.tracker:safeBack()
     end
 end
 
@@ -189,7 +189,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
           ", vasemmalle.visited="..tostring(vasemmalle.visited))
     if (not taakse.visited or (not oikealle.visited and not vasemmalle.visited)) then
         -- neljä seinää
-        self:_turnRight()
+        self.tracker:turnRight()
         for i = 1, 3 do
             local ok, data = self.tracker:inspect()
             local nx,ny,nz = self:_neighborPos("forward")
@@ -203,11 +203,11 @@ function SuoniKaivaja:_scanAround(cameFrom)
                 -- ei mielenkiintoinen, mutta merkitään käydyksi
                 self:_markVisited(nx,ny,nz)
             end
-            self:_turnRight()
+            self.tracker:turnRight()
         end
     elseif not oikealle.visited then
         -- käänny oikealle
-        self:_turnRight()
+        self.tracker:turnRight()
         local ok, data = self.tracker:inspect()
         local nx,ny,nz = self:_neighborPos("forward")
         if ok and self.interesting[data.name] then
@@ -238,7 +238,7 @@ function SuoniKaivaja:_scanAround(cameFrom)
     end
 
     -- palauta alkuorientaatio
-    while self.tracker:facingName() ~= startFacing do self:_turnRight() end
+    while self.tracker:facingName() ~= startFacing do self.tracker:turnRight() end
 end
 
 -- julkinen pääfunktio
