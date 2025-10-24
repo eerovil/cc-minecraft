@@ -23,7 +23,36 @@ local blockIsInteresting = {
 }
 
 
+function pudotaJotainJosReppuFull()
+    local emptySlots = 0
+    local itemsBySlot = {}
+    for slot = 1, 16 do
+        local item = turtle.getItemDetail(slot)
+        if item then
+            itemsBySlot[slot] = item
+        else
+            emptySlots = emptySlots + 1
+        end
+    end
+    if emptySlots < 2 then
+        print("Reppu täynnä, pudotetaan jotain...")
+        -- pudota jotain ylimääräistä, esim. kiviblokkeja
+        for _, badName in ipairs(badItemNames) do
+            for slot, item in pairs(itemsBySlot) do
+                if string.find(item.name, badName) then
+                    turtle.select(slot)
+                    turtle.dropDown(item.count)
+                    print("Pudotettu "..item.count.." "..badName.." alaspäin.")
+                    return
+                end
+            end
+        end
+        print("Ei löytynyt pudotettavaa.")
+    end
+end
+
 local kaivaSuoni = function()
+    pudotaJotainJosReppuFull()
     local suoniKaivaja = SuoniKaivaja.new(tracker, interestingBlocks)
     suoniKaivaja:aloita()
 end
@@ -64,34 +93,6 @@ local badItemNames = {
     "andesite",
     "stone",
 }
-
-function pudotaJotainJosReppuFull()
-    local emptySlots = 0
-    local itemsBySlot = {}
-    for slot = 1, 16 do
-        local item = turtle.getItemDetail(slot)
-        if item then
-            itemsBySlot[slot] = item
-        else
-            emptySlots = emptySlots + 1
-        end
-    end
-    if emptySlots < 2 then
-        print("Reppu täynnä, pudotetaan jotain...")
-        -- pudota jotain ylimääräistä, esim. kiviblokkeja
-        for _, badName in ipairs(badItemNames) do
-            for slot, item in pairs(itemsBySlot) do
-                if string.find(item.name, badName) then
-                    turtle.select(slot)
-                    turtle.dropDown(item.count)
-                    print("Pudotettu "..item.count.." "..badName.." alaspäin.")
-                    return
-                end
-            end
-        end
-        print("Ei löytynyt pudotettavaa.")
-    end
-end
 
 
 function meneTakaisin()
