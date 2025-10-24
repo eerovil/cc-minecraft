@@ -66,6 +66,8 @@ function meneTakaisin()
     end
 end
 
+local SPIRAL_LOOPS = 5
+
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 stop = false
 while true do
@@ -73,20 +75,19 @@ while true do
         break
     end
     tracker:cycle(function()
-        -- siksak
-        tracker:safeForward()
-        tracker:turnRight()
-        tracker:safeForward()
-        nopeaTsekkaus()
-        tracker:turnLeft()
-        tracker:safeForward()
-        tracker:turnLeft()
-        tracker:safeForward()
-        nopeaTsekkaus()
-        tracker:turnRight()
+        -- spiral
+        for loop = 1, SPIRAL_LOOPS do
+            for side = 1, 4 do
+                for step = 1, loop do
+                    nopeaTsekkaus()
+                    tracker:safeForward()
+                end
+                tracker:turnRight()
+            end
+        end
+        
         if not (utils.refuel()) then
             print("Ei polttoainetta, palataan takaisin.")
-            meneTakaisin()
             stop = true
             return
         end
