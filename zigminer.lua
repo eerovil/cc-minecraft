@@ -86,7 +86,9 @@ end
 
 local function kaivaNBlokkia(n)
     for i = 1, n do
-        nopeaTsekkaus()
+        if (nopeaTsekkaus()) then
+            kaivaSuoni()
+        end
         tracker:dig()
         tracker:digUp()
         tracker:safeForward()
@@ -130,6 +132,10 @@ function palaaAlkuun()
         end
         kaivaNBlokkia(-currPos.z)
     end
+    -- käänny pohjoiseen
+    while facing ~= "north" do
+        turnRight()
+    end
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
@@ -143,10 +149,8 @@ while true do
         stop = true
         return
     end
-    nopeaTsekkaus()
     kaivaNBlokkia(currLen)
     turnRight()
-    nopeaTsekkaus()
     kaivaNBlokkia(currLen)
     turnRight()
     currLen = currLen - 2
