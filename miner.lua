@@ -67,10 +67,12 @@ function meneTakaisin()
     print("Mene takaisin lähtöpisteeseen.")
     tracker:safeUp()
     -- jos takana on blokki, pysähdy
-    local successBack, dataBack = turtle.inspect()
-    if successBack then
-        tracker:safeDown()
-        return
+    while true do
+        local successBack, dataBack = turtle.inspect()
+        if successBack then
+            tracker:safeDown()
+            break
+        end
     end
     tracker:safeBack()
 end
