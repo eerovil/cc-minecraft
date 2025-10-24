@@ -60,6 +60,8 @@ local badItemNames = {
     "dirt",
     "flint",
     "copper",
+    "diorite",
+    "andesite",
     "stone",
 }
 
