@@ -66,26 +66,36 @@ function meneTakaisin()
     end
 end
 
-local SPIRAL_LOOPS = 5
+local SPIRAL_SIDE = 10
+
+local function kaivaNBlokkia(n)
+    for i = 1, n do
+        nopeaTsekkaus()
+        tracker:dig()
+        tracker:safeForward()
+    end
+end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
-stop = false
+local currLen = SPIRAL_SIDE
+kaivaNBlokkia(currLen)
+tracker:turnRight()
 while true do
-    if stop then
-        break
-    end
-    tracker:cycle(function()
-        -- spiral
-        for loop = 1, SPIRAL_LOOPS do
-            for side = 1, 4 do
-                for step = 1, loop * 2 do
-                    nopeaTsekkaus()
-                    tracker:safeForward()
-                end
-                tracker:turnRight()
-            end
-        end
+    if not (utils.refuel()) then
+        print("Ei polttoainetta, palataan takaisin.")
+        meneTakaisin()
         stop = true
         return
-    end)
+    end
+    nopeaTsekkaus()
+    kaivaNBlokkia(currLen)
+    tracker:turnRight()
+    nopeaTsekkaus()
+    kaivaNBlokkia(currLen)
+    tracker:turnRight()
+    currLen = currLen - 2
+    if currLen <= 0 then
+        print("Kaivettu kaikki kerrokset")
+        break
+    end
 end
