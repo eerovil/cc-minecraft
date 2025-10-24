@@ -67,9 +67,9 @@ local kaivaSuoni = function()
     suoniKaivaja:aloita()
 end
 
-local nopeaTsekkaus = function()
+local nopeaTsekkaus = function(suunnat)
     -- katso ylös, alas ja eteenpäin, palauta true jos mielenkiintoinen blokki löytyy
-    for _, dir in ipairs({"forward", "up", "down"}) do
+    for _, dir in ipairs(suunnat) do
         local ok, data
         if dir == "forward" then
             ok, data = tracker:inspect()
@@ -125,7 +125,7 @@ end
 
 local function kaivaNBlokkia(n)
     for i = 1, n do
-        if (nopeaTsekkaus()) then
+        if (nopeaTsekkaus({"up", "down"})) then
             kaivaSuoni()
         end
         tracker:dig()
@@ -140,6 +140,9 @@ local function kaivaNBlokkia(n)
         elseif facing == "west" then
             currPos.z = currPos.z - 1
         end
+    end
+    if (nopeaTsekkaus({"forward"})) then
+        kaivaSuoni()
     end
 end
 
