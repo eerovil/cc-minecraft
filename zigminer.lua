@@ -55,6 +55,41 @@ local nopeaTsekkaus = function()
     return false
 end
 
+local badItemNames = {
+    "gravel",
+    "dirt",
+    "flint",
+    "copper",
+    "stone",
+}
+
+function pudotaJotainJosReppuFull()
+    local totalItems = 0
+    local itemsBySlot = {}
+    for slot = 1, 16 do
+        local item = turtle.getItemDetail(slot)
+        if item then
+            totalItems = totalItems + item.count
+            itemsBySlot[slot] = item
+        end
+    end
+    if totalItems >= 16 * 64 then
+        print("Reppu täynnä, pudotetaan jotain...")
+        -- pudota jotain ylimääräistä, esim. kiviblokkeja
+        for slot, item in pairs(itemsBySlot) do
+            for _, badName in ipairs(badItemNames) do
+                if string.find(item.name, badName) then
+                    turtle.select(slot)
+                    turtle.dropDown(item.count)
+                    print("Pudotettu "..item.count.." "..badName.." alaspäin.")
+                    return
+                end
+            end
+        end
+        print("Ei löytynyt pudotettavaa.")
+    end
+end
+
 
 function meneTakaisin()
     print("Mene takaisin lähtöpisteeseen.")
@@ -159,6 +194,7 @@ while true do
         palaaAlkuun()
         break
     end
+    pudotaJotainJosReppuFull()
 end
 
 shell.run("resetstate.lua")
