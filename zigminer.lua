@@ -88,6 +88,7 @@ local function kaivaNBlokkia(n)
     for i = 1, n do
         nopeaTsekkaus()
         tracker:dig()
+        tracker:digUp()
         tracker:safeForward()
         if facing == "north" then
             currPos.x = currPos.x + 1
