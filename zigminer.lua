@@ -66,7 +66,7 @@ function meneTakaisin()
     end
 end
 
-local SPIRAL_SIDE = 10
+local SPIRAL_SIDE = 100
 
 local currPos = {x=0, y=0, z=0}
 local facing = "north"
@@ -90,7 +90,7 @@ local function kaivaNBlokkia(n)
             kaivaSuoni()
         end
         tracker:dig()
-        tracker:digUp()
+        -- tracker:digUp()
         tracker:safeForward()
         if facing == "north" then
             currPos.x = currPos.x + 1
