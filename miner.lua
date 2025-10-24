@@ -61,6 +61,18 @@ function asetaBlokkiAlas()
     end
 end
 
+function meneTakaisin()
+    print("Mene takaisin lähtöpisteeseen.")
+    tracker:safeUp()
+    -- jos takana on blokki, pysähdy
+    local successBack, dataBack = turtle.inspect()
+    if successBack then
+        tracker:safeDown()
+        return
+    end
+    tracker:safeBack()
+end
+
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 while true do
     tracker:cycle(function()
@@ -99,6 +111,15 @@ while true do
         kaiva(false)
         asetaBlokkiAlas()
         tracker:safeForward()
-        laitaSoihtuTaakse()
+        if not (laitaSoihtuTaakse()) then
+            print("Ei voi laittaa soihtua taakse, palataan takaisin.")
+            meneTakaisin()
+            return
+        end
+        if not (utils.refuel()) then
+            print("Ei polttoainetta, palataan takaisin.")
+            meneTakaisin()
+            return
+        end
     end)
 end
