@@ -8,6 +8,13 @@ Actions.__index = Actions
 
 local STATE_DIR = "/.state"
 
+local directions = {
+    "north",
+    "east",
+    "south",
+    "west",
+}
+
 local function ensureDir(path)
     local parts = {}
     for part in string.gmatch(path, "[^/]+") do
@@ -97,13 +104,24 @@ function Actions.new(name, opts)
         last_step = 0,
         pending = nil,
         version = 1,
-        results = {}
+        results = {},
+    }
+    self.posState = {
+        facing = 1,
+        currPos = {x=0, y=0, z=0},
     }
     local s = readFile(self.path)
     if s then
         local t = jsonDecode(s);
         if type(t) == "table" then
             self.state = t
+            self.posState = {
+                facing = t.facing or 1,
+                currPos = t.currPos or {x=0, y=0, z=0},
+            }
+            -- remove positions from state
+            self.state.facing = nil
+            self.state.currPos = nil
         end
     end
     if not fs.exists(STATE_DIR) then
@@ -111,6 +129,64 @@ function Actions.new(name, opts)
     end
     self:reconcilePending()
     return self
+end
+
+function Actions:facingName()
+    return directions[self.posState.facing]
+end
+
+function Actions:currPos()
+    return self.posState.currPos
+end
+
+function Actions:faceRight()
+    local zeroBased = self.posState.facing - 1
+    zeroBased = (zeroBased + 1) % 4
+    self.posState.facing = zeroBased + 1
+end
+
+function Actions:faceLeft()
+    local zeroBased = self.posState.facing - 1
+    zeroBased = (zeroBased + 3) % 4
+    self.posState.facing = zeroBased + 1
+end
+
+function Actions:posForward()
+    local pos = self.posState.currPos
+    local facing = directions[self.posState.facing]
+    if facing == "north" then
+        pos.x = pos.x + 1
+    elseif facing == "east" then
+        pos.z = pos.z + 1
+    elseif facing == "south" then
+        pos.x = pos.x - 1
+    elseif facing == "west" then
+        pos.z = pos.z - 1
+    end
+end
+
+function Actions:posBackward()
+    local pos = self.posState.currPos
+    local facing = directions[self.posState.facing]
+    if facing == "north" then
+        pos.x = pos.x - 1
+    elseif facing == "east" then
+        pos.z = pos.z - 1
+    elseif facing == "south" then
+        pos.x = pos.x + 1
+    elseif facing == "west" then
+        pos.z = pos.z + 1
+    end
+end
+
+function Actions:posUp()
+    local pos = self.posState.currPos
+    pos.y = pos.y + 1
+end
+
+function Actions:posDown()
+    local pos = self.posState.currPos
+    pos.y = pos.y - 1
 end
 
 function Actions:save()
@@ -132,6 +208,7 @@ function Actions:reconcilePending()
 end
 
 function Actions:runStep(fn, opts)
+    print(textutils.serialize(self.posState))
     opts = opts or {}
     local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
@@ -187,27 +264,35 @@ function Actions:runStep(fn, opts)
 end
 
 function Actions:moveForward()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.forward()
     end)
+    self:posForward()
+    return ret
 end
 
 function Actions:forward()
-    return self:moveForward()
+    local ret = self:moveForward()
+    self:posForward()
+    return ret
 end
 
 function Actions:moveBack()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.back()
     end)
+    self:posBackward()
+    return ret
 end
 
 function Actions:back()
-    return self:moveBack()
+    local ret = self:moveBack()
+    self:posBackward()
+    return ret
 end
 
 function Actions:safeBack()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         while true do
             local ok, reason = turtle.back()
             if ok then
@@ -226,10 +311,12 @@ function Actions:safeBack()
             sleep(0.2)
         end
     end)
+    self:posBackward()
+    return ret
 end
 
 function Actions:safeForward()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         while true do
             local ok, reason = turtle.forward()
             if ok then
@@ -244,20 +331,26 @@ function Actions:safeForward()
             sleep(0.2)
         end
     end)
+    self:posForward()
+    return ret
 end
 
 function Actions:moveUp()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.up()
     end)
+    self:posUp()
+    return ret
 end
 
 function Actions:up()
-    return self:moveUp()
+    local ret = self:moveUp()
+    self:posUp()
+    return ret
 end
 
 function Actions:safeUp()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         while true do
             local ok, reason = turtle.up()
             if ok then
@@ -272,20 +365,26 @@ function Actions:safeUp()
             sleep(0.2)
         end
     end)
+    self:posUp()
+    return ret
 end
 
 function Actions:moveDown()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.down()
     end)
+    self:posDown()
+    return ret
 end
 
 function Actions:down()
-    return self:moveDown()
+    local ret = self:moveDown()
+    self:posDown()
+    return ret
 end
 
 function Actions:safeDown()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         while true do
             local ok, reason = turtle.down()
             if ok then
@@ -300,27 +399,36 @@ function Actions:safeDown()
             sleep(0.2)
         end
     end)
+    self:posDown()
+    return ret
 end
 
 function Actions:turnLeft()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.turnLeft()
     end)
+    self:faceLeft()  -- we face left even if the step did not run
+    return ret
 end
 
 function Actions:turnRight()
-    return self:runStep(function()
+    local ret = self:runStep(function()
         return turtle.turnRight()
     end)
+    self:faceRight()  -- we face right even if the step did not run
+    return ret
 end
 
 function Actions:turnAround()
     self:runStep(function()
         return turtle.turnRight()
     end)
-    return self:runStep(function()
+    self:faceRight()
+    local ret = self:runStep(function()
         return turtle.turnRight()
     end)
+    self:faceRight()
+    return ret
 end
 
 function Actions:dig()
@@ -393,7 +501,21 @@ function Actions:completeCycle()
     self.state.results = {}
     self.state.last_step = 0;
     self.state.pending = nil;
+    -- We add position state to saved state for cycle persistence
+    -- i.e. next cycle will start with these positions
+    self.state.facing = self.posState.facing
+    self.state.currPos = self.posState.currPos
     self:save()
+end
+
+function Actions:reset()
+    -- delete all files in .state/
+    if fs.exists(STATE_DIR) then
+        for _, file in ipairs(fs.list(STATE_DIR)) do
+            local path = STATE_DIR .. "/" .. file
+            fs.delete(path)
+        end
+    end
 end
 
 function Actions:cycle(fn)

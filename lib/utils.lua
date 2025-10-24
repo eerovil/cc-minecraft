@@ -71,7 +71,7 @@ function M.inspectAhead()
 end
 
 
-local filename = "turtle_state.txt"
+local filename = ".state/utils_state.txt"
 
 -- lataa tai tallenna state
 function M.loadState()

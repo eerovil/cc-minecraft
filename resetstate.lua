@@ -5,7 +5,7 @@ local label = utils.getLabel()
 if label then
     print("Reset: " .. label)
     tracker = Actions.new(label)
-    tracker:completeCycle()
+    tracker:reset()
 else
   print("Ei labelia!")
 end

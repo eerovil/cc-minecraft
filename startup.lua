@@ -65,11 +65,11 @@ end
 
 -- ===== Pääohjelma =====
 local label = ensureLabel()
-runUpdate()
 if label then
   if waitForKeyPress() then
     shell.run("resetstate")
   else
+    runUpdate()
     runRoleProgram(label)
   end
 end

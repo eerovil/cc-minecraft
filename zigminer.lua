@@ -3,6 +3,24 @@ local utils = dofile("lib/utils.lua")
 local Actions = dofile("lib/actions.lua")
 local SuoniKaivaja = dofile("lib/ore.lua")
 tracker = Actions.new(utils.getLabel())
+
+
+local SPIRAL_SIDE = 5
+local currLen = SPIRAL_SIDE
+
+-- jos argsista löytyy tallennettu tila, lataa se
+local args = {...}
+if args[1] then 
+    -- force save new state
+    utils.saveState({currLen=args[1]})
+end
+
+local savedState = utils.loadState()
+if savedState then
+    currLen = savedState.currLen or SPIRAL_SIDE
+end
+
+
 local interestingBlocks = {
     "minecraft:diamond_ore",
     "minecraft:gold_ore",
@@ -30,8 +48,6 @@ local badItemNames = {
     "andesite",
     "stone",
 }
-
-
 
 function pudotaJotainJosReppuFull()
     local emptySlots = 0
@@ -105,24 +121,6 @@ function meneTakaisin()
     end
 end
 
-local SPIRAL_SIDE = 5
-
-local currPos = {x=0, y=0, z=0}
-local currLen = SPIRAL_SIDE
-local facing = "north"
-
-local turnRightMap = {
-    north = "east",
-    east = "south",
-    south = "west",
-    west = "north",
-}
-
-local function turnRight()
-    tracker:turnRight()
-    facing = turnRightMap[facing]
-end
-
 
 local function kaivaNBlokkia(n)
     for i = 1, n do
@@ -132,16 +130,6 @@ local function kaivaNBlokkia(n)
         tracker:dig()
         -- tracker:digUp()
         tracker:safeForward()
-        if facing == "north" then
-            currPos.x = currPos.x + 1
-        elseif facing == "east" then
-            currPos.z = currPos.z + 1
-        elseif facing == "south" then
-            currPos.x = currPos.x - 1
-        elseif facing == "west" then
-            currPos.z = currPos.z - 1
-        end
-        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
     end
     if (nopeaTsekkaus({"forward"})) then
         kaivaSuoni()
@@ -150,57 +138,43 @@ end
 
 function palaaAlkuun()
     -- käänny kohti north
-    if currPos.x > 0 then
+    if tracker:currPos().x > 0 then
         -- käänny etelään
-        while facing ~= "south" do
-            turnRight()
+        while tracker:facingName() ~= "south" do
+            tracker:turnRight()
         end
-        kaivaNBlokkia(currPos.x)
-    elseif currPos.x < 0 then
+        kaivaNBlokkia(tracker:currPos().x)
+    elseif tracker:currPos().x < 0 then
         -- käänny pohjoiseen
-        while facing ~= "north" do
-            turnRight()
+        while tracker:facingName() ~= "north" do
+            tracker:turnRight()
         end
-        kaivaNBlokkia(-currPos.x)
+        kaivaNBlokkia(-tracker:currPos().x)
     end
-    if currPos.z > 0 then
+    if tracker:currPos().z > 0 then
         -- käänny länteen
-        while facing ~= "west" do
-            turnRight()
+        while tracker:facingName() ~= "west" do
+            tracker:turnRight()
         end
-        kaivaNBlokkia(currPos.z)
-    elseif currPos.z < 0 then
+        kaivaNBlokkia(tracker:currPos().z)
+    elseif tracker:currPos().z < 0 then
         -- käänny itään
-        while facing ~= "east" do
-            turnRight()
+        while tracker:facingName() ~= "east" do
+            tracker:turnRight()
         end
-        kaivaNBlokkia(-currPos.z)
+        kaivaNBlokkia(-tracker:currPos().z)
     end
     -- käänny pohjoiseen
-    while facing ~= "north" do
-        turnRight()
+    while tracker:facingName() ~= "north" do
+        tracker:turnRight()
     end
 end
 
--- jos argsista löytyy tallennettu tila, lataa se
-local args = {...}
-
-if args[1] then 
-    -- force save new state
-    utils.saveState({currLen=args[1]})
-end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
-local savedState = utils.loadState()
-if savedState then
-    currLen = savedState.currLen or SPIRAL_SIDE
-    currPos = savedState.currPos or {x=0, y=0, z=0}
-    facing = savedState.facing or "north"
-end
 local stop = false
 while true do
     if stop then
-        utils.saveState({})
         break
     end
     tracker:cycle(function()
@@ -211,21 +185,20 @@ while true do
             return
         end
         kaivaNBlokkia(currLen)
-        turnRight()
+        tracker:turnRight()
         pudotaJotainJosReppuFull()
         kaivaNBlokkia(currLen)
-        turnRight()
+        tracker:turnRight()
         pudotaJotainJosReppuFull()
         currLen = currLen - 2
+        utils.saveState({currLen=currLen})
         if currLen <= 0 then
             print("Kaivettu kaikki kerrokset")
             palaaAlkuun()
             stop = true
             return
         end
-        utils.saveState({facing=facing, currPos=currPos, currLen=currLen})
     end)
 end
 
 shell.run("resetstate.lua")
-utils.saveState({})
