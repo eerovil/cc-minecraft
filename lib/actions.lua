@@ -139,6 +139,44 @@ function Actions:currPos()
     return self.posState.currPos
 end
 
+function Actions.moveTo(x, y, z)
+    local pos = self.posState.currPos
+    local startFacing = self:facingName()
+    while pos.y < y do
+        self:safeUp()
+    end
+    while pos.y > y do
+        self:safeDown()
+    end
+    while pos.x < x do
+        while self:facingName() ~= "north" do
+            self:turnRight()
+        end
+        self:safeForward()
+    end
+    while pos.x > x do
+        while self:facingName() ~= "south" do
+            self:turnRight()
+        end
+        self:safeForward()
+    end
+    while pos.z < z do
+        while self:facingName() ~= "east" do
+            self:turnRight()
+        end
+        self:safeForward()
+    end
+    while pos.z > z do
+        while self:facingName() ~= "west" do
+            self:turnRight()
+        end
+        self:safeForward()
+    end
+    while self:facingName() ~= startFacing do
+        self:turnRight()
+    end
+end
+
 function Actions:faceRight()
     local zeroBased = self.posState.facing - 1
     zeroBased = (zeroBased + 1) % 4
@@ -208,7 +246,6 @@ function Actions:reconcilePending()
 end
 
 function Actions:runStep(fn, opts)
-    print(textutils.serialize(self.posState))
     opts = opts or {}
     local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
