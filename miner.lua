@@ -68,13 +68,12 @@ function meneTakaisin()
     tracker:safeUp()
     -- jos takana on blokki, pysähdy
     while true do
-        local successBack, dataBack = turtle.inspect()
-        if successBack then
-            tracker:safeDown()
-            return
+        success = tracker:back()
+        if not success then
+            break
         end
-        tracker:safeBack()
     end
+    tracker:safeDown()
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
