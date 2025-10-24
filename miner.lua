@@ -71,10 +71,10 @@ function meneTakaisin()
         local successBack, dataBack = turtle.inspect()
         if successBack then
             tracker:safeDown()
-            break
+            return
         end
+        tracker:safeBack()
     end
-    tracker:safeBack()
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
