@@ -183,6 +183,14 @@ function palaaAlkuun()
     end
 end
 
+-- jos argsista löytyy tallennettu tila, lataa se
+local args = {...}
+
+if args[1] then 
+    -- force save new state
+    utils.saveState({currLen=args[1]})
+end
+
 -- Pääsilmukka: kaiva tunnelia eteenpäin
 local savedState = utils.loadState()
 if savedState then
