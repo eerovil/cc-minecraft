@@ -99,3 +99,5 @@ while true do
         break
     end
 end
+
+shell.run("resetstate.lua")
