@@ -76,11 +76,16 @@ function meneTakaisin()
 end
 
 -- Pääsilmukka: kaiva tunnelia eteenpäin
+stop = false
 while true do
+    if stop then
+        break
+    end
     tracker:cycle(function()
         if not (laitaSoihtuTaakse()) then
             print("Ei voi laittaa soihtua taakse, palataan takaisin.")
             meneTakaisin()
+            stop = true
             return
         end
         -- kaiva 3 kertaa
@@ -121,6 +126,7 @@ while true do
         if not (utils.refuel()) then
             print("Ei polttoainetta, palataan takaisin.")
             meneTakaisin()
+            stop = true
             return
         end
     end)
