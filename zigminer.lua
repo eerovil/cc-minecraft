@@ -66,7 +66,7 @@ function meneTakaisin()
     end
 end
 
-local SPIRAL_SIDE = 100
+local SPIRAL_SIDE = 40
 
 local currPos = {x=0, y=0, z=0}
 local facing = "north"
