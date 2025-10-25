@@ -77,8 +77,7 @@ local function getAbsoluteFacing()
         end
     end
     if not found then
-        log("Furnace ei löydy inventaariosta.")
-        return nil
+        error("Furnace ei löydy inventaariosta.")
     end
     safeUp()
     -- aseta alas furnace
