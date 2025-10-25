@@ -586,12 +586,6 @@ end
 function Actions:turnRight()
     local ret = self:runStep(function()
         local ret = turtle.turnRight()
-        if self.startingStep == 0 then
-            log("rebooting before marking step " .. tostring(localStep))
-            -- wait a second to let me read the message
-            sleep(1)
-            os.reboot()
-        end
         return ret
     end, { turning = "right" })
     self:faceRight()  -- we face right even if the step did not run
