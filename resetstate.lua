@@ -4,8 +4,7 @@ local Actions = dofile("lib/actions.lua")
 local label = utils.getLabel()
 if label then
     print("Reset: " .. label)
-    tracker = Actions.new(label)
-    tracker:reset()
+    Actions.reset()
 else
   print("Ei labelia!")
 end

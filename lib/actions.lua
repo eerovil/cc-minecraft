@@ -15,6 +15,88 @@ local directions = {
     "west",
 }
 
+local function log(msg)
+    -- log to file log.log
+    print(msg)
+    local fh = fs.open("/log.log", "a")
+    fh.writeLine(msg)
+    fh.close()
+end
+
+-- clear log file
+local function clearLog()
+    if fs.exists("/log.log") then
+        fs.delete("/log.log")
+    end
+    log("Log cleared.")
+end
+
+local function safeUp()
+    while true do
+        local ok, reason = turtle.up()
+        if ok then
+          return ok, reason
+        end
+        log("Et voi liikkua ylös: " .. tostring(reason))
+        turtle.digUp()
+        sleep(0.2)
+    end
+end
+
+local function safeDown()
+    while true do
+        local ok, reason = turtle.down()
+        if ok then
+          return ok, reason
+        end
+        log("Et voi liikkua alas: " .. tostring(reason))
+        turtle.digDown()
+        sleep(0.2)
+    end
+end
+
+-- detect absolute facing direction
+local function getAbsoluteFacing()
+    local facingMap = {
+        east = "west",
+        west = "east",
+        north = "south",
+        south = "north",
+    }
+    -- select furnace from inventory
+    local found = false
+    for i = 1, 16 do
+        turtle.select(i)
+        local itemCount = turtle.getItemCount(i)
+        if itemCount > 0 then
+            local itemDetail = turtle.getItemDetail(i)
+            if itemDetail and itemDetail.name == "minecraft:furnace" then
+                found = true
+                break
+            end
+        end
+    end
+    if not found then
+        log("Furnace ei löydy inventaariosta.")
+        return nil
+    end
+    safeUp()
+    -- aseta alas furnace
+    turtle.select(1)
+    turtle.placeDown()
+    -- inspect furnace
+    local success, furnaceData = turtle.inspectDown()
+    safeDown()
+    if furnaceData and furnaceData.state and furnaceData.state.facing then
+        -- log all data
+        log("Furnace data: " .. textutils.serialize(furnaceData))
+        return facingMap[furnaceData.state.facing]
+    else
+        log("Furnace not found below!")
+        return nil
+    end
+end
+
 local function ensureDir(path)
     local parts = {}
     for part in string.gmatch(path, "[^/]+") do
@@ -100,14 +182,23 @@ function Actions.new(name, opts)
     local self = setmetatable({}, Actions)
     self.name = name
     self.path = opts.path or (STATE_DIR .. "/" .. name .. ".json")
+    self.startingStep = 0  -- for debugging, to see at which point of the program the turtle booted last
     self.state = {
         last_step = 0,
         pending = nil,
         version = 1,
         results = {},
     }
+    local absoluteFacing = getAbsoluteFacing() or "north"
+    for i, dir in ipairs(directions) do
+        if dir == absoluteFacing then
+            self.absoluteFacing = i
+            break
+        end
+    end
     self.posState = {
-        facing = 1,
+        startFacing = self.absoluteFacing,
+        facing = self.absoluteFacing,
         currPos = {x=0, y=0, z=0},
     }
     local s = readFile(self.path)
@@ -116,32 +207,48 @@ function Actions.new(name, opts)
         if type(t) == "table" then
             self.state = t
             self.posState = {
-                facing = t.facing or 1,
+                startFacing = t.startFacing or self.absoluteFacing,
+                facing = t.facing or self.absoluteFacing,
                 currPos = t.currPos or {x=0, y=0, z=0},
             }
             -- remove positions from state
             self.state.facing = nil
             self.state.currPos = nil
+            self.state.startFacing = nil
+            self.startingStep = self.state.last_step or 0
         end
     end
     if not fs.exists(STATE_DIR) then
         fs.makeDir(STATE_DIR)
     end
+    if self.startingStep == 0 then
+        clearLog()
+        log("absoluteFacing: " .. tostring(absoluteFacing))
+    end
     self:reconcilePending()
     return self
+end
+
+function Actions:log(msg)
+    print("[actions:log] " .. msg)
+    log(msg)
 end
 
 function Actions:facingName()
     return directions[self.posState.facing]
 end
 
+function Actions:startFacingName()
+    return directions[self.posState.startFacing]
+end
+
 function Actions:currPos()
     return self.posState.currPos
 end
 
-function Actions:moveTo(x, y, z)
+function Actions:moveTo(x, y, z, facing)
     local pos = self.posState.currPos
-    local startFacing = self:facingName()
+    local targetFacing = facing or self:facingName()
     while pos.y < y do
         self:safeUp()
     end
@@ -172,7 +279,7 @@ function Actions:moveTo(x, y, z)
         end
         self:safeForward()
     end
-    while self:facingName() ~= startFacing do
+    while self:facingName() ~= targetFacing do
         self:turnRight()
     end
 end
@@ -239,24 +346,42 @@ function Actions:reconcilePending()
     local cur = getFuel()
     local min_fuel = p.min_fuel or 0
     if cur < (p.fuel_before - min_fuel) then
+        log("fuel spent during pending step " .. tostring(p.step) .. ", marking step as completed")
         self.state.last_step = p.step
         self.state.pending = nil
         self:save()
+    elseif (p.facing_after and self.posState.facing == p.facing_after) then
+        log("Already facing correct direction after pending step " .. tostring(p.step) .. ", marking step as completed")
+        self.state.last_step = p.step
+        self.state.pending = nil
+        self:save()
+    else
+        log("fuel not spent during pending step " .. tostring(p.step) .. ", leaving step as pending")
     end
 end
 
 function Actions:runStep(fn, opts)
+    log("x: " .. tostring(self.posState.currPos.x) .. ", y: " .. tostring(self.posState.currPos.y) .. ", z: " .. tostring(self.posState.currPos.z) .. ", facing: " .. tostring(self:facingName()))
     opts = opts or {}
     local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
     local step = localStep
-    -- print("[actions] step " .. step .. ", state: " .. jsonEncode(self.state))
+    local plan = "RUNNING"
+    if self.state.last_step >= step then
+        plan = "SKIPPING"
+    end
+    if self.state.pending and self.state.pending.step == step then
+        plan = "RECONCILING"
+    end
+    log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state))
 
     if self.state.pending and self.state.pending.step == step then
         self:reconcilePending()
         if self.state.last_step >= step then
             return true, nil
         end
+        plan = "RUNNING"
+        log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state))
     end
 
     -- Jos vaihe on jo valmis, palauta edellinen tulos
@@ -275,10 +400,21 @@ function Actions:runStep(fn, opts)
     end
 
     local fuel_before = getFuel()
+    local facing_after = nil
+    if opts.turning then
+        facing_after = self.posState.facing
+        local zeroBased = facing_after - 1
+        if opts.turning == "left" then
+            facing_after = ((zeroBased + 3) % 4) + 1
+        elseif opts.turning == "right" then
+            facing_after = (zeroBased + 1) % 4 + 1
+        end
+    end
     self.state.pending = {
         step = step,
         fuel_before = fuel_before,
         min_fuel = min_fuel,
+        facing_after = facing_after,
         ts = now_ms()
     }
     self:save()
@@ -339,7 +475,7 @@ function Actions:safeBack()
             if reason and string.find(reason:lower(), "fuel") then
                 error("Et voi liikkua ylös: " .. tostring(reason))
             end
-            print("Et voi liikkua ylös: " .. tostring(reason))
+            log("Et voi liikkua ylös: " .. tostring(reason))
             turtle.turnLeft()
             turtle.turnLeft()
             turtle.dig()
@@ -363,7 +499,7 @@ function Actions:safeForward()
             if reason and string.find(reason:lower(), "fuel") then
                 error("Et voi liikkua eteenpäin: " .. tostring(reason))
             end
-            print("Et voi liikkua eteenpäin: " .. tostring(reason))
+            log("Et voi liikkua eteenpäin: " .. tostring(reason))
             turtle.dig()
             sleep(0.2)
         end
@@ -397,7 +533,7 @@ function Actions:safeUp()
             if reason and string.find(reason:lower(), "fuel") then
                 error("Et voi liikkua ylös: " .. tostring(reason))
             end
-            print("Et voi liikkua ylös: " .. tostring(reason))
+            log("Et voi liikkua ylös: " .. tostring(reason))
             turtle.digUp()
             sleep(0.2)
         end
@@ -431,7 +567,7 @@ function Actions:safeDown()
             if reason and string.find(reason:lower(), "fuel") then
                 error("Et voi liikkua alas: " .. tostring(reason))
             end
-            print("Et voi liikkua alas: " .. tostring(reason))
+            log("Et voi liikkua alas: " .. tostring(reason))
             turtle.digDown()
             sleep(0.2)
         end
@@ -443,15 +579,22 @@ end
 function Actions:turnLeft()
     local ret = self:runStep(function()
         return turtle.turnLeft()
-    end)
+    end, { turning = "left" })
     self:faceLeft()  -- we face left even if the step did not run
     return ret
 end
 
 function Actions:turnRight()
     local ret = self:runStep(function()
-        return turtle.turnRight()
-    end)
+        local ret = turtle.turnRight()
+        if self.startingStep == 0 then
+            log("rebooting before marking step " .. tostring(localStep))
+            -- wait a second to let me read the message
+            sleep(1)
+            os.reboot()
+        end
+        return ret
+    end, { turning = "right" })
     self:faceRight()  -- we face right even if the step did not run
     return ret
 end
@@ -459,11 +602,11 @@ end
 function Actions:turnAround()
     self:runStep(function()
         return turtle.turnRight()
-    end)
+    end, { turning = "right" })
     self:faceRight()
     local ret = self:runStep(function()
         return turtle.turnRight()
-    end)
+    end, { turning = "right" })
     self:faceRight()
     return ret
 end
@@ -542,10 +685,11 @@ function Actions:completeCycle()
     -- i.e. next cycle will start with these positions
     self.state.facing = self.posState.facing
     self.state.currPos = self.posState.currPos
+    self.state.startFacing = self.posState.startFacing
     self:save()
 end
 
-function Actions:reset()
+function Actions.reset()
     -- delete all files in .state/
     if fs.exists(STATE_DIR) then
         for _, file in ipairs(fs.list(STATE_DIR)) do
@@ -558,13 +702,6 @@ end
 function Actions:cycle(fn)
     fn()
     self:completeCycle()
-end
-
-function Actions:print()
-    print("[actions] step=" .. tostring(self.state.last_step))
-    if self.state.pending then
-        print("pending:", textutils.serialize(self.state.pending))
-    end
 end
 
 return Actions
