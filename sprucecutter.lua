@@ -46,7 +46,13 @@ local function hakkaaYlos()
       tracker:safeUp()
       tracker:digUp()
       tracker:safeUp()
-      break
+      local success, data = tracker:inspectUp()
+      if success then
+        print("yläpuolella edelleen: " .. data.name)
+      else
+        print("yläpuolella ei enää blokkeja.")
+        break
+      end
     end
   end
 end
@@ -132,7 +138,7 @@ local function istutaKuusi()
   tracker:turnLeft()
   tracker:safeForward()
   tracker:turnLeft()
-  tracker:back()
+  tracker:safeBack()
   tracker:safeDown()
 end
 
@@ -182,6 +188,12 @@ while true do
       error("Ei riittävästi polttoainetta!")
     end
     etsiMaa()
+    local success, below = tracker:inspectDown()
+    -- jos ei ole timanttikuutioa alla, error
+    tracker:log("alla: " .. (below and below.name or "ei mitään"))
+    if not (success and below.name == "minecraft:diamond_block") then
+    error("Ei timanttia alla!")
+    end
     laitaArkkuun()
     suckUpAllAround()
 
@@ -195,7 +207,7 @@ while true do
     end
     suckUpAllAround()
     -- liiku taaksepäin 1
-    tracker:back()
+    tracker:safeBack()
     -- odota 2 sekuntia ennen seuraavaa tarkistusta
     os.sleep(2)
     -- käänny 180 astetta

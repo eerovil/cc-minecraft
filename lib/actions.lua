@@ -57,7 +57,9 @@ local function safeUp()
           return ok, reason
         end
         log("Et voi liikkua ylös: " .. tostring(reason))
-        turtle.digUp()
+        if not turtle.digUp() then
+          error("Et voi liikkua ylös: " .. tostring(reason))
+        end
         sleep(0.2)
     end
 end
@@ -69,7 +71,9 @@ local function safeDown()
           return ok, reason
         end
         log("Et voi liikkua alas: " .. tostring(reason))
-        turtle.digDown()
+        if not turtle.digDown() then
+          error("Et voi liikkua alas: " .. tostring(reason))
+        end
         sleep(0.2)
     end
 end
@@ -83,24 +87,24 @@ local function getAbsoluteFacing()
         south = "north",
     }
     -- select furnace from inventory
-    local found = false
+    local furnaceSlot = nil
     for i = 1, 16 do
         turtle.select(i)
         local itemCount = turtle.getItemCount(i)
         if itemCount > 0 then
             local itemDetail = turtle.getItemDetail(i)
             if itemDetail and itemDetail.name == "minecraft:furnace" then
-                found = true
+                furnaceSlot = i
                 break
             end
         end
     end
-    if not found then
+    if not furnaceSlot then
         error("Furnace ei löydy inventaariosta.")
     end
     safeUp()
     -- aseta alas furnace
-    turtle.select(1)
+    turtle.select(furnaceSlot)
     turtle.placeDown()
     -- inspect furnace
     local success, furnaceData = turtle.inspectDown()
@@ -468,12 +472,12 @@ function Actions:runStep(fn, opts)
         }
     end
 
-    -- 10% mahdollisuus reboottiin
-    if math.random() < 0.1 then
-        log("Simuloidaan reboottia stepin " .. tostring(step) .. " jälkeen")
-        sleep(1)
-        os.reboot()
-    end
+    -- -- 10% mahdollisuus reboottiin
+    -- if math.random() < 0.1 then
+    --     log("Simuloidaan reboottia stepin " .. tostring(step) .. " jälkeen")
+    --     sleep(1)
+    --     os.reboot()
+    -- end
 
     -- Merkitään askel valmiiksi
     self.state.last_step = step
@@ -492,6 +496,7 @@ function Actions:moveForward()
 end
 
 function Actions:forward()
+    error("Don't use forward(), use safeForward() instead")
     local ret = self:moveForward()
     return ret
 end
@@ -505,6 +510,7 @@ function Actions:moveBack()
 end
 
 function Actions:back()
+    error("Don't use back(), use safeBack() instead")
     local ret = self:moveBack()
     return ret
 end
@@ -523,7 +529,9 @@ function Actions:safeBack()
             log("Et voi liikkua ylös: " .. tostring(reason))
             turtle.turnLeft()
             turtle.turnLeft()
-            turtle.dig()
+            if not turtle.dig() then
+              error("Et voi liikkua ylös: " .. tostring(reason))
+            end
             turtle.turnLeft()
             turtle.turnLeft()
             sleep(0.2)
@@ -545,7 +553,9 @@ function Actions:safeForward()
                 error("Et voi liikkua eteenpäin: " .. tostring(reason))
             end
             log("Et voi liikkua eteenpäin: " .. tostring(reason))
-            turtle.dig()
+            if not turtle.dig() then
+              error("Et voi liikkua eteenpäin: " .. tostring(reason))
+            end
             sleep(0.2)
         end
     end, { consume_fuel = true })
@@ -562,6 +572,7 @@ function Actions:moveUp()
 end
 
 function Actions:up()
+    error("Don't use up(), use safeUp() instead")
     local ret = self:moveUp()
     self:posUp()
     return ret
@@ -579,7 +590,9 @@ function Actions:safeUp()
                 error("Et voi liikkua ylös: " .. tostring(reason))
             end
             log("Et voi liikkua ylös: " .. tostring(reason))
-            turtle.digUp()
+            if not turtle.digUp() then
+              error("Et voi liikkua ylös: " .. tostring(reason))
+            end
             sleep(0.2)
         end
     end, { consume_fuel = true })
@@ -596,6 +609,7 @@ function Actions:moveDown()
 end
 
 function Actions:down()
+    error("Don't use down(), use safeDown() instead")
     local ret = self:moveDown()
     self:posDown()
     return ret
@@ -613,7 +627,9 @@ function Actions:safeDown()
                 error("Et voi liikkua alas: " .. tostring(reason))
             end
             log("Et voi liikkua alas: " .. tostring(reason))
-            turtle.digDown()
+            if not turtle.digDown() then
+              error("Et voi liikkua alas: " .. tostring(reason))
+            end
             sleep(0.2)
         end
     end, { consume_fuel = true })
