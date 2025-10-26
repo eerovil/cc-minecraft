@@ -120,6 +120,13 @@ function SuoniKaivaja:_quickCheck()
 end
 
 function SuoniKaivaja:_scanAround(cameFrom)
+    -- jos kaivaminen on kestänyt liian kauan, lopeta
+    if self.tracker:tooBigState() then
+        print("Lopetetaan kaivuu, koska tila on liian suuri.")
+        self.interesting = {}  -- tyhjennä mielenkiintoiset blokit, jotta lopetetaan
+        return
+    end
+
     if self.endMiningCallback and self.endMiningCallback() then
         print("Lopetetaan kaivuu ulkoisesta syystä.")
         self.interesting = {}  -- tyhjennä mielenkiintoiset blokit, jotta lopetetaan
