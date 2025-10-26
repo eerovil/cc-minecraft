@@ -23,21 +23,35 @@ end
 
 local interestingBlocks = {
     "minecraft:diamond_ore",
+    "minecraft:deepslate_diamond_ore",
     "minecraft:gold_ore",
+    "minecraft:deepslate_gold_ore",
     "minecraft:emerald_ore",
+    "minecraft:deepslate_emerald_ore",
     "minecraft:iron_ore",
+    "minecraft:deepslate_iron_ore",
     "minecraft:coal_ore",
+    "minecraft:deepslate_coal_ore",
     "minecraft:redstone_ore",
+    "minecraft:deepslate_redstone_ore",
     "minecraft:lapis_ore",
+    "minecraft:deepslate_lapis_ore",
 }
 local blockIsInteresting = {
     ["minecraft:diamond_ore"] = true,
+    ["minecraft:deepslate_diamond_ore"] = true,
     ["minecraft:gold_ore"] = true,
+    ["minecraft:deepslate_gold_ore"] = true,
     ["minecraft:emerald_ore"] = true,
+    ["minecraft:deepslate_emerald_ore"] = true,
+    ["minecraft:deepslate_iron_ore"] = true,
     ["minecraft:iron_ore"] = true,
     ["minecraft:coal_ore"] = true,
+    ["minecraft:deepslate_coal_ore"] = true,
     ["minecraft:redstone_ore"] = true,
+    ["minecraft:deepslate_redstone_ore"] = true,
     ["minecraft:lapis_ore"] = true,
+    ["minecraft:deepslate_lapis_ore"] = true,
 }
 local badItemNames = {
     "gravel",
