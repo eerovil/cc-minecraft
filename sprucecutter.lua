@@ -13,7 +13,7 @@ local GROUND_BLOCK = "minecraft:podzol"
 local DIRT_BLOCK = "minecraft:dirt"
 local GRASS_BLOCK = "minecraft:grass_block"
 
-local function riittavastiSaplingeja()
+local function saplingMaara()
   local totalSaplings = 0
   for slot = 1, 16 do
     local item = turtle.getItemDetail(slot)
@@ -21,8 +21,13 @@ local function riittavastiSaplingeja()
       totalSaplings = totalSaplings + item.count
     end
   end
-  return totalSaplings >= 8
+  return totalSaplings
 end
+
+local function riittavastiSaplingeja()
+  return saplingMaara() >= 8
+end
+
 
 -- Hakkaa ylös kunnes ei mitään blokkeja
 local function hakkaaYlos()
@@ -108,40 +113,19 @@ end
 
 
 -- istuta taimi alapuolelle
-local function istutaTaimi()
+local function istutaTaimiEteen()
   -- Etsi taimi inventaariosta
   for slot = 1, 16 do
     local item = turtle.getItemDetail(slot)
     if item and string.find(item.name, "sapling") then
       turtle.select(slot)
-      turtle.placeDown()
-      print("Istutettu taimi alapuolelle.")
+      turtle.place()
+      print("Istutettu taimi eteen.")
       return
     end
   end
   print("Ei tainta inventaariossa!")
 end
-
--- istuta kuusi edessä
-local function istutaKuusi()
-  tracker:safeForward()
-  tracker:safeUp()
-  istutaTaimi()
-  tracker:safeForward()
-  istutaTaimi()
-  tracker:turnLeft()
-  tracker:safeForward()
-  istutaTaimi()
-  tracker:turnLeft()
-  tracker:safeForward()
-  istutaTaimi()
-  tracker:turnLeft()
-  tracker:safeForward()
-  tracker:turnLeft()
-  tracker:safeBack()
-  tracker:safeDown()
-end
-
 
 local suckUpAllAround = function()
   for i = 1, 4 do
@@ -180,6 +164,63 @@ local laitaArkkuun = function()
   end
 end
 
+local varmistaEdessaOnTaimiTaiKuusi = function()
+  local success, data = tracker:inspect()
+  if success and (data.name == SPRUCE_LOG_BLOCK or data.name == SPRUCE_SAPLING_ITEM) then
+    return true
+  else
+    -- rikoita edessä oleva blockki
+    tracker:dig()
+    -- istuta taimi
+    istutaTaimiEteen()
+  end
+end
+
+local function keraile()
+  -- käy edessä olevan taimen ympärillä ja kerää kaikki esineet
+  tracker:safeForward()
+  varmistaEdessaOnTaimiTaiKuusi()
+  tracker:turnLeft()
+  tracker:safeForward()
+  tracker:safeForward()
+  suckUpAllAround()
+  tracker:turnRight()
+  tracker:safeForward()
+
+  tracker:turnRight()
+  varmistaEdessaOnTaimiTaiKuusi()
+  tracker:turnLeft()
+
+  tracker:safeForward()
+  suckUpAllAround()
+  tracker:safeForward()
+  tracker:turnRight()
+  tracker:safeForward()
+
+  tracker:turnRight()
+  varmistaEdessaOnTaimiTaiKuusi()
+  tracker:turnLeft()
+
+  tracker:safeForward()
+  suckUpAllAround()
+  tracker:safeForward()
+  tracker:turnRight()
+  tracker:safeForward()
+
+  tracker:turnRight()
+  varmistaEdessaOnTaimiTaiKuusi()
+  tracker:turnLeft()
+
+  tracker:safeForward()
+  suckUpAllAround()
+  tracker:safeForward()
+  tracker:turnRight()
+  tracker:safeForward()
+  tracker:turnLeft()
+  tracker:safeForward()
+  tracker:turnAround()
+end
+
 local stop = false
 while true do
   if stop then break end
@@ -191,8 +232,8 @@ while true do
     local success, below = tracker:inspectDown()
     -- jos ei ole timanttikuutioa alla, error
     tracker:log("alla: " .. (below and below.name or "ei mitään"))
-    if not (success and below.name == "minecraft:diamond_block") then
-    error("Ei timanttia alla!")
+    if not (success and below.name == "minecraft:chest") then
+    error("Ei arkkua alla!")
     end
     laitaArkkuun()
     suckUpAllAround()
@@ -203,16 +244,14 @@ while true do
     -- onko kasvanut?
     if (ok and data.name == SPRUCE_LOG_BLOCK) then
       hakkaaKuusi()
-      istutaKuusi()
     end
     suckUpAllAround()
     -- liiku taaksepäin 1
     tracker:safeBack()
-    -- odota 2 sekuntia ennen seuraavaa tarkistusta
-    os.sleep(2)
     -- käänny 180 astetta
     tracker:turnRight()
     -- stop = true
+    keraile()
   end)
 end
 
