@@ -264,7 +264,7 @@ end
 
 function Actions:tooBigState()
     local stateSize = #jsonEncode(self.state)
-    return stateSize > 5000  -- 5 KB
+    return stateSize > 100000  -- 5 KB
 end
 
 function Actions:log(msg)
