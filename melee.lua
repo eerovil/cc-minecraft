@@ -1,4 +1,6 @@
 local utils = dofile("lib/utils.lua")
 
-turtle.attack()
-turtle.turnRight()
+while true do
+    turtle.attack()
+    turtle.turnRight()
+end
