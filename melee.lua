@@ -1,8 +1,10 @@
 local utils = dofile("lib/utils.lua")
 
 while true do
-    turtle.attack()
-    turtle.turnRight()
+    for i = 1, 8 do
+        turtle.attack()
+        turtle.turnRight()
+    end
     turtle.back()
     turtle.attack()
     turtle.forward()
