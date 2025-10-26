@@ -29,7 +29,6 @@ function SuoniKaivaja.new(tracker, interestingBlocks, endMiningCallback)
     self.tracker = tracker
     self.interesting = makeSet(interestingBlocks)
     self.visited = { [key(0,0,0)] = true }
-    self.surelyInteresting = {}
     self.endMiningCallback = endMiningCallback
     return self
 end
@@ -46,16 +45,8 @@ function SuoniKaivaja:_markVisited(x,y,z)
     self.visited[key(x,y,z)] = true
 end
 
-function SuoniKaivaja:_markInteresting(x,y,z)
-    self.surelyInteresting[key(x,y,z)] = true
-end
-
 function SuoniKaivaja:_isVisited(x,y,z)
     return self.visited[key(x,y,z)] == true
-end
-
-function SuoniKaivaja:_isSurelyInteresting(x,y,z)
-    return self.surelyInteresting[key(x,y,z)] == true
 end
 
 -- --- suonen seuraaminen ---
@@ -104,14 +95,6 @@ end
 
 function SuoniKaivaja:_quickCheck()
     -- check ahead, up, down and mark visited if not interesting
-    local checkResults = {
-        forward = nil,
-        up = nil,
-        down = nil,
-        right = nil,
-        left = nil,
-        back = nil
-    }
     for _, dir in ipairs({"forward", "up", "down"}) do
         local ok, data
         if dir == "forward" then
@@ -119,27 +102,18 @@ function SuoniKaivaja:_quickCheck()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("forward")
                 self:_markVisited(nx,ny,nz)
-                checkResults.forward = false
-            else
-                checkResults.forward = true
             end
         elseif dir == "up" then
             ok, data = self.tracker:inspectUp()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("up")
                 self:_markVisited(nx,ny,nz)
-                checkResults.up = false
-            else
-                checkResults.up = true
             end
         elseif dir == "down" then
             ok, data = self.tracker:inspectDown()
             if not ok or not self.interesting[data.name] then
                 local nx,ny,nz = self:_neighborPos("down")
                 self:_markVisited(nx,ny,nz)
-                checkResults.down = false
-            else
-                checkResults.down = true
             end
         end
     end
@@ -158,120 +132,58 @@ function SuoniKaivaja:_scanAround(cameFrom)
         self.interesting = {}  -- tyhjennä mielenkiintoiset blokit, jotta lopetetaan
         return
     end
-    local checkResults = self:_quickCheck()
+    self:_quickCheck()
 
+    -- ylös
+    if cameFrom ~= "up" then
+        local ok, data = self.tracker:inspectUp()
+        local nx,ny,nz = self:_neighborPos("up")
+        if ok and self.interesting[data.name] then
+            print("Ylös: "..data.name)
+            if self:_digAndMove("up") then
+                self:_scanAround("down")
+                self:_backtrack("up")
+            end
+        else
+            -- ei mielenkiintoinen, mutta merkitään käydyksi
+            self:_markVisited(nx,ny,nz)
+        end
+    end
 
+    -- alas
+    if cameFrom ~= "down" then
+        local ok, data = self.tracker:inspectDown()
+        local nx,ny,nz = self:_neighborPos("down")
+        if ok and self.interesting[data.name] then
+            print("Alas: "..data.name)
+            if self:_digAndMove("down") then
+                self:_scanAround("up")
+                self:_backtrack("down")
+            end
+        else
+            -- ei mielenkiintoinen, mutta merkitään käydyksi
+            self:_markVisited(nx,ny,nz)
+        end
+    end
 
-    -- -- ylös
-    -- if cameFrom ~= "up" then
-    --     local ok, data = self.tracker:inspectUp()
-    --     local nx,ny,nz = self:_neighborPos("up")
-    --     if ok and self.interesting[data.name] then
-    --         print("Ylös: "..data.name)
-    --         if self:_digAndMove("up") then
-    --             self:_scanAround("down")
-    --             self:_backtrack("up")
-    --         end
-    --     else
-    --         -- ei mielenkiintoinen, mutta merkitään käydyksi
-    --         self:_markVisited(nx,ny,nz)
-    --     end
-    -- end
-
-    -- -- alas
-    -- if cameFrom ~= "down" then
-    --     local ok, data = self.tracker:inspectDown()
-    --     local nx,ny,nz = self:_neighborPos("down")
-    --     if ok and self.interesting[data.name] then
-    --         print("Alas: "..data.name)
-    --         if self:_digAndMove("down") then
-    --             self:_scanAround("up")
-    --             self:_backtrack("down")
-    --         end
-    --     else
-    --         -- ei mielenkiintoinen, mutta merkitään käydyksi
-    --         self:_markVisited(nx,ny,nz)
-    --     end
-    -- end
-
-    -- -- eteen
-    -- local ok, data = self.tracker:inspect()
-    -- local nx,ny,nz = self:_neighborPos("forward")
-    -- if ok and self.interesting[data.name] then
-    --     print("Eessä: "..data.name)
-    --     if self:_digAndMove("forward") then
-    --         self:_scanAround("back")
-    --         self:_backtrack("forward")
-    --     end
-    -- else
-    --     -- ei mielenkiintoinen, mutta merkitään käydyksi
-    --     self:_markVisited(nx,ny,nz)
-    -- end
+    -- eteen
+    local ok, data = self.tracker:inspect()
+    local nx,ny,nz = self:_neighborPos("forward")
+    if ok and self.interesting[data.name] then
+        print("Eessä: "..data.name)
+        if self:_digAndMove("forward") then
+            self:_scanAround("back")
+            self:_backtrack("forward")
+        end
+    else
+        -- ei mielenkiintoinen, mutta merkitään käydyksi
+        self:_markVisited(nx,ny,nz)
+    end
 
     local neighborPositions = self:_getNeighborPositions()
     local taakse = neighborPositions[3]
     local oikealle = neighborPositions[2]
     local vasemmalle = neighborPositions[4]
-
-    -- update checkResults based on visited
-    if taakse.visited then checkResults.back = false end
-    if oikealle.visited then checkResults.right = false end
-    if vasemmalle.visited then checkResults.left = false end
-
-    -- if all neighbors checkResults are false, return
-    if not checkResults.forward and not checkResults.up and not checkResults.down and
-       not checkResults.right and not checkResults.left and not checkResults.back then
-        return
-    end
-
-    -- update any nil values.
-    if (checkResults.back == nil) then
-        self.tracker:turnRight()
-        local resFacing = "right"
-        for i = 1, 3 do
-            local ok, data = self.tracker:inspect()
-            local nx,ny,nz = self:_neighborPos("forward")
-            if ok and self.interesting[data.name] then
-                checkResults[resFacing] = true
-                self:_markInteresting(nx,ny,nz)
-            else
-                checkResults[resFacing] = false
-                -- ei mielenkiintoinen, mutta merkitään käydyksi
-                self:_markVisited(nx,ny,nz)
-            end
-            self.tracker:turnRight()
-            if resFacing == "right" then resFacing = "back"
-            elseif resFacing == "back" then resFacing = "left"
-            elseif resFacing == "left" then resFacing = "forward" end
-        end
-    elseif (checkResults.right == nil) then
-        self.tracker:turnRight()
-        local ok, data = self.tracker:inspect()
-        local nx,ny,nz = self:_neighborPos("forward")
-        if ok and self.interesting[data.name] then
-            checkResults.right = true
-            self:_markInteresting(nx,ny,nz)
-        else
-            checkResults.right = false
-            -- ei mielenkiintoinen, mutta merkitään käydyksi
-            self:_markVisited(nx,ny,nz)
-        end
-        self.tracker:turnLeft()
-    elseif (checkResults.left == nil) then
-        self.tracker:turnLeft()
-        local ok, data = self.tracker:inspect()
-        local nx,ny,nz = self:_neighborPos("forward")
-        if ok and self.interesting[data.name] then
-            checkResults.left = true
-            self:_markInteresting(nx,ny,nz)
-        else
-            checkResults.left = false
-            -- ei mielenkiintoinen, mutta merkitään käydyksi
-            self:_markVisited(nx,ny,nz)
-        end
-        self.tracker:turnRight()
-    end
-
     local startFacing = self.tracker:facingName()
 
     -- jos interesting on tyhjä, lopeta
