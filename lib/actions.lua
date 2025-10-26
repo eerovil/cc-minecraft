@@ -15,9 +15,28 @@ local directions = {
     "west",
 }
 
+local function deepCopy(orig)
+    local copy = {}
+    for k, v in pairs(orig) do
+        if type(v) == "table" then
+            copy[k] = deepCopy(v)
+        else
+            copy[k] = v
+        end
+    end
+    return copy
+end
+
 local function log(msg)
     -- log to file log.log
     print(msg)
+    -- if file is too big, delete it
+    if fs.exists("/log.log") then
+        local size = fs.getSize("/log.log")
+        if size > 100000 then
+            fs.delete("/log.log")
+        end
+    end
     local fh = fs.open("/log.log", "a")
     fh.writeLine(msg)
     fh.close()
@@ -85,14 +104,13 @@ local function getAbsoluteFacing()
     turtle.placeDown()
     -- inspect furnace
     local success, furnaceData = turtle.inspectDown()
+    turtle.digDown()
     safeDown()
     if furnaceData and furnaceData.state and furnaceData.state.facing then
         -- log all data
-        log("Furnace data: " .. textutils.serialize(furnaceData))
         return facingMap[furnaceData.state.facing]
     else
-        log("Furnace not found below!")
-        return nil
+        error("Furnace not found below!")
     end
 end
 
@@ -188,6 +206,8 @@ function Actions.new(name, opts)
         version = 1,
         results = {},
     }
+    local extraFuelSpent = 2 -- always 2 since we go up and down
+    log("REBOOTED")
     local absoluteFacing = getAbsoluteFacing() or "north"
     for i, dir in ipairs(directions) do
         if dir == absoluteFacing then
@@ -205,25 +225,35 @@ function Actions.new(name, opts)
         local t = jsonDecode(s);
         if type(t) == "table" then
             self.state = t
+            if extraFuelSpent and extraFuelSpent > 0 then
+                log("Adding " .. tostring(extraFuelSpent) .. " fuel spent to pending step fuel consumption")
+                -- add extraFuelSpent to pending step fuel consumption
+                if self.state.pending and self.state.pending.fuel_before then
+                    self.state.pending.fuel_before = self.state.pending.fuel_before - extraFuelSpent
+                end
+            end
             self.posState = {
                 startFacing = t.startFacing or self.absoluteFacing,
-                facing = t.facing or self.absoluteFacing,
+                facing = t.startFacing or self.absoluteFacing,
                 currPos = t.currPos or {x=0, y=0, z=0},
             }
             -- remove positions from state
             self.state.facing = nil
             self.state.currPos = nil
-            self.state.startFacing = nil
             self.startingStep = self.state.last_step or 0
         end
+    end
+    -- make sure startinFacing is saved
+    if not self.state.startFacing then
+        self.state.startFacing = self.posState.startFacing
     end
     if not fs.exists(STATE_DIR) then
         fs.makeDir(STATE_DIR)
     end
     if self.startingStep == 0 then
-        clearLog()
         log("absoluteFacing: " .. tostring(absoluteFacing))
     end
+    log("startFacing: " .. tostring(self:startFacingName()) .. ", absoluteFacing: " .. tostring(absoluteFacing) .. ", facing: " .. tostring(self:facingName()))
     self:reconcilePending()
     return self
 end
@@ -296,6 +326,7 @@ function Actions:faceLeft()
 end
 
 function Actions:posForward()
+    log("posForward called")
     local pos = self.posState.currPos
     local facing = directions[self.posState.facing]
     if facing == "north" then
@@ -310,6 +341,7 @@ function Actions:posForward()
 end
 
 function Actions:posBackward()
+    log("posBackward called")
     local pos = self.posState.currPos
     local facing = directions[self.posState.facing]
     if facing == "north" then
@@ -343,26 +375,33 @@ function Actions:reconcilePending()
         return
     end
     local cur = getFuel()
-    local min_fuel = p.min_fuel or 0
-    if cur < (p.fuel_before - min_fuel) then
-        log("fuel spent during pending step " .. tostring(p.step) .. ", marking step as completed")
+    local min_fuel = 0
+    if not p.fuel_before and not p.facing_after then
+        log("No fuel_before or facing_after in pending step " .. tostring(p.step) .. ", cannot reconcile")
+        return
+    end
+    if p.fuel_before and (cur < (p.fuel_before - min_fuel)) then
+        log("fuel spent: " .. tostring(p.fuel_before - cur) .. " during pending step " .. tostring(p.step) .. ", marking step as completed")
         self.state.last_step = p.step
         self.state.pending = nil
         self:save()
-    elseif (p.facing_after and self.posState.facing == p.facing_after) then
+    elseif (p.facing_after and self.absoluteFacing == p.facing_after) then
         log("Already facing correct direction after pending step " .. tostring(p.step) .. ", marking step as completed")
         self.state.last_step = p.step
         self.state.pending = nil
         self:save()
     else
+        if p.facing_after then
+            log("Not facing correct direction after pending step " .. tostring(p.step) .. " (facing " .. tostring(self.absoluteFacing) .. ", expected " .. tostring(p.facing_after) .. ")")
+        end
         log("fuel not spent during pending step " .. tostring(p.step) .. ", leaving step as pending")
+        error("debug")
     end
 end
 
 function Actions:runStep(fn, opts)
     log("x: " .. tostring(self.posState.currPos.x) .. ", y: " .. tostring(self.posState.currPos.y) .. ", z: " .. tostring(self.posState.currPos.z) .. ", facing: " .. tostring(self:facingName()))
     opts = opts or {}
-    local min_fuel = opts.min_fuel or 0
     localStep = localStep + 1
     local step = localStep
     local plan = "RUNNING"
@@ -372,7 +411,7 @@ function Actions:runStep(fn, opts)
     if self.state.pending and self.state.pending.step == step then
         plan = "RECONCILING"
     end
-    log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state))
+    log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
 
     if self.state.pending and self.state.pending.step == step then
         self:reconcilePending()
@@ -380,7 +419,7 @@ function Actions:runStep(fn, opts)
             return true, nil
         end
         plan = "RUNNING"
-        log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state))
+        log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
     end
 
     -- Jos vaihe on jo valmis, palauta edellinen tulos
@@ -398,7 +437,7 @@ function Actions:runStep(fn, opts)
         end
     end
 
-    local fuel_before = getFuel()
+    local fuel_before = nil
     local facing_after = nil
     if opts.turning then
         facing_after = self.posState.facing
@@ -409,10 +448,12 @@ function Actions:runStep(fn, opts)
             facing_after = (zeroBased + 1) % 4 + 1
         end
     end
+    if opts.consume_fuel then
+        fuel_before = getFuel()
+    end
     self.state.pending = {
         step = step,
         fuel_before = fuel_before,
-        min_fuel = min_fuel,
         facing_after = facing_after,
         ts = now_ms()
     }
@@ -425,6 +466,13 @@ function Actions:runStep(fn, opts)
             ok = ok,
             data = {name = data.name}
         }
+    end
+
+    -- 10% mahdollisuus reboottiin
+    if math.random() < 0.1 then
+        log("Simuloidaan reboottia stepin " .. tostring(step) .. " jälkeen")
+        sleep(1)
+        os.reboot()
     end
 
     -- Merkitään askel valmiiksi
@@ -445,21 +493,19 @@ end
 
 function Actions:forward()
     local ret = self:moveForward()
-    self:posForward()
     return ret
 end
 
 function Actions:moveBack()
     local ret = self:runStep(function()
         return turtle.back()
-    end)
+    end, { consume_fuel = true })
     self:posBackward()
     return ret
 end
 
 function Actions:back()
     local ret = self:moveBack()
-    self:posBackward()
     return ret
 end
 
@@ -482,7 +528,7 @@ function Actions:safeBack()
             turtle.turnLeft()
             sleep(0.2)
         end
-    end)
+    end, { consume_fuel = true })
     self:posBackward()
     return ret
 end
@@ -502,7 +548,7 @@ function Actions:safeForward()
             turtle.dig()
             sleep(0.2)
         end
-    end)
+    end, { consume_fuel = true })
     self:posForward()
     return ret
 end
@@ -510,7 +556,7 @@ end
 function Actions:moveUp()
     local ret = self:runStep(function()
         return turtle.up()
-    end)
+    end, { consume_fuel = true })
     self:posUp()
     return ret
 end
@@ -536,7 +582,7 @@ function Actions:safeUp()
             turtle.digUp()
             sleep(0.2)
         end
-    end)
+    end, { consume_fuel = true })
     self:posUp()
     return ret
 end
@@ -544,7 +590,7 @@ end
 function Actions:moveDown()
     local ret = self:runStep(function()
         return turtle.down()
-    end)
+    end, { consume_fuel = true })
     self:posDown()
     return ret
 end
@@ -570,7 +616,7 @@ function Actions:safeDown()
             turtle.digDown()
             sleep(0.2)
         end
-    end)
+    end, { consume_fuel = true })
     self:posDown()
     return ret
 end
@@ -586,12 +632,12 @@ end
 function Actions:turnRight()
     local ret = self:runStep(function()
         local ret = turtle.turnRight()
-        if self.startingStep == 0 then
-            log("rebooting before marking step " .. tostring(localStep))
-            -- wait a second to let me read the message
-            sleep(1)
-            os.reboot()
-        end
+        -- if self.startingStep == 0 and localStep == 8 then
+        --     log("rebooting before marking step " .. tostring(localStep))
+        --     -- wait a second to let me read the message
+        --     sleep(1)
+        --     os.reboot()
+        -- end
         return ret
     end, { turning = "right" })
     self:faceRight()  -- we face right even if the step did not run
@@ -683,9 +729,10 @@ function Actions:completeCycle()
     -- We add position state to saved state for cycle persistence
     -- i.e. next cycle will start with these positions
     self.state.facing = self.posState.facing
-    self.state.currPos = self.posState.currPos
-    self.state.startFacing = self.posState.startFacing
+    self.state.currPos = deepCopy(self.posState.currPos)
+    self.state.startFacing = self.posState.facing
     self:save()
+    self:log("Cycle completed, state: " .. jsonEncode(self.state))
 end
 
 function Actions.reset()

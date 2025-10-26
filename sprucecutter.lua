@@ -174,7 +174,9 @@ local laitaArkkuun = function()
   end
 end
 
+local stop = false
 while true do
+  if stop then break end
   tracker:cycle(function() 
     if not (utils.refuel()) then
       error("Ei riittävästi polttoainetta!")
@@ -198,6 +200,7 @@ while true do
     os.sleep(2)
     -- käänny 180 astetta
     tracker:turnRight()
+    -- stop = true
   end)
 end
 
