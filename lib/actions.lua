@@ -404,7 +404,6 @@ function Actions:reconcilePending()
             log("Not facing correct direction after pending step " .. tostring(p.step) .. " (facing " .. tostring(self.absoluteFacing) .. ", expected " .. tostring(p.facing_after) .. ")")
         end
         log("fuel not spent during pending step " .. tostring(p.step) .. ", leaving step as pending")
-        error("debug")
     end
 end
 
