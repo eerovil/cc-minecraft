@@ -111,3 +111,5 @@ local ok, e = pcall(main)
 if not ok then
   print("Update failed:", e)
 end
+
+shell.run("resetstate")
