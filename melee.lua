@@ -1,13 +1,10 @@
 local utils = dofile("lib/utils.lua")
 
-local function selectSlotWithAnyItem()
+local function dropAllItems()
   for slot = 1, 16 do
-    if turtle.getItemCount(slot) > 0 then
-      turtle.select(slot)
-      return true
-    end
+    turtle.select(slot)
+    turtle.drop()
   end
-  return false
 end
 
 while true do
@@ -18,6 +15,5 @@ while true do
     turtle.back()
     turtle.attack()
     turtle.forward()
-    turtle.dropDown()
-    selectSlotWithAnyItem()
+    dropAllItems()
 end
