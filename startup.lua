@@ -66,7 +66,6 @@ end
 -- ===== Pääohjelma =====
 local label = ensureLabel()
 if label then
-  runUpdate()
   runRoleProgram(label)
   shell.run("resetstate")
 end
