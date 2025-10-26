@@ -33,7 +33,7 @@ local function log(msg)
     -- if file is too big, delete it
     if fs.exists("/log.log") then
         local size = fs.getSize("/log.log")
-        if size > 10000 then
+        if size > 5000 then
             fs.delete("/log.log")
         end
     end
@@ -264,7 +264,7 @@ end
 
 function Actions:tooBigState()
     local stateSize = #jsonEncode(self.state)
-    return stateSize > 10000  -- 5 KB
+    return stateSize > 5000  -- 5 KB
 end
 
 function Actions:log(msg)
