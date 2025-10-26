@@ -151,7 +151,7 @@ while true do
             if edellinenSuunta == "vasen" then
                 -- Olemme reunan päällä, pitää kääntyä oikealle.
                 -- mene taaksepäin, käänny oikealle, mene eteenpäin, käänny oikealle
-                tracker:back()
+                tracker:safeBack()
                 tracker:turnRight()
                 tracker:safeForward()
                 tracker:turnRight()
@@ -159,7 +159,7 @@ while true do
             else
                 -- Olemme reunan päällä, pitää kääntyä vasemmalle.
                 -- mene taaksepäin, käänny vasemmalle, mene eteenpäin, käänny vasemmalle
-                tracker:back()
+                tracker:safeBack()
                 tracker:turnLeft()
                 tracker:safeForward()
                 tracker:turnLeft()
