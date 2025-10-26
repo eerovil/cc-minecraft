@@ -419,7 +419,7 @@ function Actions:runStep(fn, opts)
     if self.state.pending and self.state.pending.step == step then
         plan = "RECONCILING"
     end
-    log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
+    -- log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
 
     if self.state.pending and self.state.pending.step == step then
         self:reconcilePending()
@@ -427,7 +427,7 @@ function Actions:runStep(fn, opts)
             return true, nil
         end
         plan = "RUNNING"
-        log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
+        -- log(plan .. " step " .. step .. ", state: " .. jsonEncode(self.state) .. ", opts: " .. jsonEncode(opts))
     end
 
     -- Jos vaihe on jo valmis, palauta edellinen tulos
@@ -662,6 +662,24 @@ function Actions:turnRight()
     end, { turning = "right" })
     self:faceRight()  -- we face right even if the step did not run
     return ret
+end
+
+function Actions:turnTowards(directionName)
+    local currentFacing = self:facingName()
+    local targetFacing = directionName
+    local rightTurns = 0
+    while currentFacing ~= targetFacing do
+        rightTurns = rightTurns + 1
+        currentFacing = directions[((self.posState.facing - 1 + rightTurns) % 4) + 1]
+    end
+    if rightTurns == 3 then
+        return self:turnLeft()
+    else
+        for i = 1, rightTurns do
+            self:turnRight()
+        end
+        return true
+    end
 end
 
 function Actions:turnAround()
