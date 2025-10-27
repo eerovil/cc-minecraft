@@ -435,7 +435,8 @@ function Actions:runStep(fn, opts)
         if self.state.results then
           local res = self.state.results[tostring(step)]
           if res then
-            if res.data then
+            -- check res type
+            if type(res) == table and res.data then
               local ok, value = pcall(textutils.unserialize, res.data)
               return res.ok, ok and value or res.data
             else
