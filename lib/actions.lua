@@ -436,11 +436,11 @@ function Actions:runStep(fn, opts)
           local res = self.state.results[tostring(step)]
           if res then
             -- check res type
-            if type(res) == "table" and res.data then
+            if type(res) == "number" then
+              return res, nil
+            elseif res.data then
               local ok, value = pcall(textutils.unserialize, res.data)
               return res.ok, ok and value or res.data
-            else
-              return res, nil
             end
           else
               return true, {name = "unknown"}
@@ -745,6 +745,20 @@ function Actions:inspectAndCall(dir, callBack)
         resultCallback = callBack
     })
     return ok, result
+end
+
+function Actions:inspectBlockIsOneOf(dir, blockNames) 
+    local ok, _ = self:inspectAndCall(dir, function(ok, data)
+        if ok then
+            for _, name in ipairs(blockNames) do
+                if data.name == name then
+                    return 1, nil
+                end
+            end
+        end
+        return 0, nil
+    end)
+    return ok == 1
 end
 
 function Actions:inspect()

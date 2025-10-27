@@ -102,21 +102,18 @@ local nopeaTsekkaus = function(suunnat)
     for _, dir in ipairs(suunnat) do
         local ok, data
         if dir == "forward" then
-            ok, data = tracker:inspect()
-            if ok and blockIsInteresting[data.name] then
-                print("Löytyi mielenkiintoinen blokki eteen: "..data.name)
+            if tracker:inspectBlockIsOneOf("forward", interestingBlocks) then
+                print("Löytyi mielenkiintoinen blokki eteenpäin.")
                 return true
             end
         elseif dir == "up" then
-            ok, data = tracker:inspectUp()
-            if ok and blockIsInteresting[data.name] then
-                print("Löytyi mielenkiintoinen blokki ylhäällä: "..data.name)
+            if tracker:inspectBlockIsOneOf("up", interestingBlocks) then
+                print("Löytyi mielenkiintoinen blokki ylhäällä.")
                 return true
             end
         elseif dir == "down" then
-            ok, data = tracker:inspectDown()
-            if ok and blockIsInteresting[data.name] then
-                print("Löytyi mielenkiintoinen blokki alhaalla: "..data.name)
+            if tracker:inspectBlockIsOneOf("down", interestingBlocks) then
+                print("Löytyi mielenkiintoinen blokki alhaalla.")
                 return true
             end
         end
