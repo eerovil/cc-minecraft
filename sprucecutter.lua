@@ -33,27 +33,24 @@ end
 local function hakkaaYlos()
   while true do
     utils.refuel()
-    local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
-    if success and data.name == LEAVES_BLOCK then
+    if tracker:inspectBlockIsOneOf("forward", {LEAVES_BLOCK}) then
       -- hakkaa suoni lehtiä
       local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK}, riittavastiSaplingeja)
       suoniKaivaja:aloita()
     end
 
-    local success, data = tracker:inspectUp()
-    if success and (data.name == SPRUCE_LOG_BLOCK or data.name == LEAVES_BLOCK) then
+    if tracker:inspectBlockIsOneOf("up", {SPRUCE_LOG_BLOCK, LEAVES_BLOCK}) then
       tracker:digUp()
       tracker:safeUp()
     else
-      print("yläpuolella: " .. (data and data.name or "ei mitään"))
       tracker:digUp()
       tracker:safeUp()
       tracker:digUp()
       tracker:safeUp()
       local success, data = tracker:inspectUp()
       if success then
-        print("yläpuolella edelleen: " .. data.name)
+        print("yläpuolella edelleen: ")
       else
         print("yläpuolella ei enää blokkeja.")
         break
@@ -70,17 +67,14 @@ local function hakkaaAlas()
   tracker:safeDown()
   while true do
     utils.refuel()
-    local success, data = tracker:inspect()
     -- jos edessä on lehti, hakkaa se pois
-    if success and data.name == LEAVES_BLOCK then
+    if tracker:inspectBlockIsOneOf("forward", {LEAVES_BLOCK}) then
       -- hakkaa suoni lehtiä
       local suoniKaivaja = SuoniKaivaja.new(tracker, {LEAVES_BLOCK}, riittavastiSaplingeja)
       suoniKaivaja:aloita()
     end
 
-    local success, data = tracker:inspectDown()
-    if success and (data.name == GROUND_BLOCK or data.name == DIRT_BLOCK or data.name == GRASS_BLOCK) then
-      print("Löytyi maa: " .. data.name)
+    if tracker:inspectBlockIsOneOf("down", {GROUND_BLOCK, DIRT_BLOCK, GRASS_BLOCK}) then
       break
     else
       tracker:digDown()
@@ -145,9 +139,8 @@ local laitaArkkuun = function()
   -- laita kaikki puut arkkuun
 
   -- inspectaa arkku
-  local success, data = tracker:inspectDown()
-  if success and data.name == "chest" then
-    print("Löydettiin arkku: " .. data.name)
+  if tracker:inspectBlockIsOneOf("down", {"minecraft:chest"}) then
+    print("Löydettiin arkku: ")
   else
     print("Ei arkku löytynyt.")
   end
@@ -165,8 +158,7 @@ local laitaArkkuun = function()
 end
 
 local varmistaEdessaOnTaimiTaiKuusi = function()
-  local success, data = tracker:inspect()
-  if success and (data.name == SPRUCE_LOG_BLOCK or data.name == SPRUCE_SAPLING_ITEM) then
+  if tracker:inspectBlockIsOneOf("forward", {SPRUCE_LOG_BLOCK, SPRUCE_SAPLING_ITEM}) then
     return true
   else
     -- rikoita edessä oleva blockki
@@ -177,6 +169,8 @@ local varmistaEdessaOnTaimiTaiKuusi = function()
 end
 
 local function keraile()
+  local taimia = false
+  local kuusia = false
   -- käy edessä olevan taimen ympärillä ja kerää kaikki esineet
   tracker:safeForward()
   varmistaEdessaOnTaimiTaiKuusi()
@@ -229,10 +223,8 @@ while true do
       error("Ei riittävästi polttoainetta!")
     end
     etsiMaa()
-    local success, below = tracker:inspectDown()
-    -- jos ei ole timanttikuutioa alla, error
-    tracker:log("alla: " .. (below and below.name or "ei mitään"))
-    if not (success and below.name == "minecraft:chest") then
+    -- jos ei ole arkkua alla, niin error
+    if not tracker:inspectBlockIsOneOf("down", {"minecraft:chest"}) then
     error("Ei arkkua alla!")
     end
     laitaArkkuun()
@@ -240,9 +232,7 @@ while true do
 
     -- liiku eteenpäin 1
     tracker:safeForward()
-    ok, data = tracker:inspect()
-    -- onko kasvanut?
-    if (ok and data.name == SPRUCE_LOG_BLOCK) then
+    if tracker:inspectBlockIsOneOf("forward", {SPRUCE_LOG_BLOCK}) then
       hakkaaKuusi()
     end
     suckUpAllAround()
