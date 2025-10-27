@@ -435,8 +435,12 @@ function Actions:runStep(fn, opts)
         if self.state.results then
           local res = self.state.results[tostring(step)]
           if res then
+            if res.data then
               local ok, value = pcall(textutils.unserialize, res.data)
               return res.ok, ok and value or res.data
+            else
+              return res, nil
+            end
           else
               return true, {name = "unknown"}
           end
@@ -468,8 +472,12 @@ function Actions:runStep(fn, opts)
     self:save()
 
     local ok, data = fn()
-    -- Tallennetaan tulos vain jos pyydetty
-    if opts.store_result then
+    if opts.resultCallback then
+        data = opts.resultCallback(ok, data)
+        self.state.results[tostring(step)] = data
+        ok = data
+        data = nil
+    elseif opts.store_result then
         self.state.results[tostring(step)] = {
             ok = ok,
             data = {name = data.name}
@@ -716,6 +724,26 @@ function Actions:place()
     return self:runStep(function()
         return turtle.place()
     end)
+end
+
+---@param dir string "up", "down" or "forward"
+---@param callBack function function(ok, data) end
+function Actions:inspectAndCall(dir, callBack)
+    local ok, result = self:runStep(function()
+        if dir == "up" then
+            return turtle.inspectUp()
+        elseif dir == "down" then
+            return turtle.inspectDown()
+        elseif dir == "forward" then
+            return turtle.inspect()
+        else
+            error("Invalid direction for inspectAndCall: " .. tostring(dir))
+        end
+    end, {
+        store_result = true,
+        resultCallback = callBack
+    })
+    return ok, result
 end
 
 function Actions:inspect()

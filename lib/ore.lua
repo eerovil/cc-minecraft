@@ -42,6 +42,17 @@ function SuoniKaivaja.new(tracker, interestingBlocks, endMiningCallback)
     return self
 end
 
+function SuoniKaivaja:isInterestingBlock(dir)
+    local ok, _ = self.tracker:inspectAndCall(dir, function(ok, data)
+        if ok and self.interesting[data.name] then
+            return 1, nil
+        else
+            return 0, nil
+        end
+    end)
+    return ok == 1
+end
+
 -- --- apu ---
 function SuoniKaivaja:_neighborPos(dir)
     local currPos = self.tracker:currPos()
@@ -65,6 +76,7 @@ end
 
 function SuoniKaivaja:_markVisited(x,y,z)
     self.visited[key(x,y,z)] = true
+    self.surelyInteresting[key(x,y,z)] = false
 end
 
 function SuoniKaivaja:_markInteresting(x,y,z)
@@ -135,8 +147,7 @@ function SuoniKaivaja:_quickCheck()
     for _, dir in ipairs({"forward", "up", "down"}) do
         local ok, data
         if dir == "forward" then
-            ok, data = self.tracker:inspect()
-            if not ok or not self.interesting[data.name] then
+            if not self:isInterestingBlock("forward") then
                 local nx,ny,nz = self:_neighborPos("forward")
                 self:_markVisited(nx,ny,nz)
                 checkResults.forward = false
@@ -144,8 +155,7 @@ function SuoniKaivaja:_quickCheck()
                 checkResults.forward = true
             end
         elseif dir == "up" then
-            ok, data = self.tracker:inspectUp()
-            if not ok or not self.interesting[data.name] then
+            if not self:isInterestingBlock("up") then
                 local nx,ny,nz = self:_neighborPos("up")
                 self:_markVisited(nx,ny,nz)
                 checkResults.up = false
@@ -153,8 +163,7 @@ function SuoniKaivaja:_quickCheck()
                 checkResults.up = true
             end
         elseif dir == "down" then
-            ok, data = self.tracker:inspectDown()
-            if not ok or not self.interesting[data.name] then
+            if not self:isInterestingBlock("down") then
                 local nx,ny,nz = self:_neighborPos("down")
                 self:_markVisited(nx,ny,nz)
                 checkResults.down = false
@@ -209,9 +218,9 @@ function SuoniKaivaja:_scanAround()
         self.tracker:turnRight()
         local resFacing = "right"
         for i = 1, 3 do
-            local ok, data = self.tracker:inspect()
+            local forwardIsInteresting = self:isInterestingBlock("forward")
             local nx,ny,nz = self:_neighborPos("forward")
-            if ok and self.interesting[data.name] then
+            if forwardIsInteresting then
                 checkResults[resFacing] = true
                 self:_markInteresting(nx,ny,nz)
             else
@@ -226,9 +235,9 @@ function SuoniKaivaja:_scanAround()
         end
     elseif (checkResults.right == nil) then
         self.tracker:turnRight()
-        local ok, data = self.tracker:inspect()
+        local rightIsInteresting = self:isInterestingBlock("forward")
         local nx,ny,nz = self:_neighborPos("forward")
-        if ok and self.interesting[data.name] then
+        if rightIsInteresting then
             checkResults.right = true
             self:_markInteresting(nx,ny,nz)
         else
@@ -239,9 +248,9 @@ function SuoniKaivaja:_scanAround()
         self.tracker:turnLeft()
     elseif (checkResults.left == nil) then
         self.tracker:turnLeft()
-        local ok, data = self.tracker:inspect()
+        local leftIsInteresting = self:isInterestingBlock("forward")
         local nx,ny,nz = self:_neighborPos("forward")
-        if ok and self.interesting[data.name] then
+        if leftIsInteresting then
             checkResults.left = true
             self:_markInteresting(nx,ny,nz)
         else
